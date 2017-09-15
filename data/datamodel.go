@@ -4,7 +4,7 @@ package data
 type Player struct {
 	Id int64 `json:"id"`
 	Name string `json:"name"`
-	Balance int64 `json:"balance"`
+	Balance int `json:"balance"`
 	BackId int64 `json:"back_id"`
 }
 
