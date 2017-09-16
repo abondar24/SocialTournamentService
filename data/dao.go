@@ -244,7 +244,8 @@ func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer) (int64, error) {
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("INSERT INTO tournament_player(player_id,tournament_id) VALUES('%v',%v)", tp.PlayerId, tp.TournamentId)
+	query := fmt.Sprintf("INSERT INTO tournament_player(player_id,tournament_id,prize) VALUES(%v,%v,%v)",
+		tp.PlayerId, tp.TournamentId, tp.Prize)
 	stmt, err := tx.Prepare(query)
 	if err != nil {
 		return int64(0), err
@@ -271,7 +272,7 @@ func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer) (int64, error) {
 
 }
 
-func (ds *MySql) GetTournamentPlayersByTournamentId(tournamentId int64) (*[]TournamentPlayer, error) {
+func (ds *MySql) GetTournamentPlayersByTournamentId(tournamentId int64) ([]TournamentPlayer, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -291,12 +292,9 @@ func (ds *MySql) GetTournamentPlayersByTournamentId(tournamentId int64) (*[]Tour
 
 	rows, err := stmt.Query()
 
-	cols, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-
-	players := make([]TournamentPlayer, len(cols))
+	//it's a change in Go 1.8
+	//if you see DB Example from GoBase it's different a little
+	players := make([]TournamentPlayer, 0)
 
 	for rows.Next() {
 		tp := TournamentPlayer{}
@@ -309,10 +307,10 @@ func (ds *MySql) GetTournamentPlayersByTournamentId(tournamentId int64) (*[]Tour
 		return nil, err
 	}
 
-	return &players, err
+	return players, err
 }
 
-func (ds *MySql) UpdateResultOfTournamentForPlayer(tp *TournamentPlayer) error {
+func (ds *MySql) SetPlayersPrize(tp *TournamentPlayer) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -321,7 +319,7 @@ func (ds *MySql) UpdateResultOfTournamentForPlayer(tp *TournamentPlayer) error {
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("UPDATE tournament_player SET price=%v WHERE tournament_id=%v AND player_id=%v ",
+	query := fmt.Sprintf("UPDATE tournament_player SET prize=%v WHERE tournament_id=%v AND player_id=%v ",
 		tp.Prize, tp.TournamentId, tp.PlayerId)
 
 	stmt, err := tx.Prepare(query)
@@ -345,7 +343,7 @@ func (ds *MySql) UpdateResultOfTournamentForPlayer(tp *TournamentPlayer) error {
 	return err
 }
 
-func (ds *MySql) GetTournamentWinners(tournamentId int64) (*[]TournamentPlayer, error) {
+func (ds *MySql) GetTournamentWinners(tournamentId int64) ([]TournamentPlayer, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -365,12 +363,7 @@ func (ds *MySql) GetTournamentWinners(tournamentId int64) (*[]TournamentPlayer, 
 
 	rows, err := stmt.Query()
 
-	cols, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-
-	players := make([]TournamentPlayer, len(cols))
+	players := make([]TournamentPlayer, 0)
 
 	for rows.Next() {
 		tp := TournamentPlayer{}
@@ -383,7 +376,7 @@ func (ds *MySql) GetTournamentWinners(tournamentId int64) (*[]TournamentPlayer, 
 		return nil, err
 	}
 
-	return &players, err
+	return players, err
 }
 
 func (ds *MySql) BackPlayerForTournament(b *Backer) (int64, error) {
@@ -422,7 +415,7 @@ func (ds *MySql) BackPlayerForTournament(b *Backer) (int64, error) {
 
 }
 
-func (ds *MySql) GetPlayerBackers(playerId int64) (*[]Backer, error) {
+func (ds *MySql) GetPlayerBackers(playerId int64) ([]Backer, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -442,12 +435,7 @@ func (ds *MySql) GetPlayerBackers(playerId int64) (*[]Backer, error) {
 
 	rows, err := stmt.Query()
 
-	cols, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-
-	backers := make([]Backer, len(cols))
+	backers := make([]Backer, 0)
 
 	for rows.Next() {
 		b := Backer{}
@@ -460,7 +448,7 @@ func (ds *MySql) GetPlayerBackers(playerId int64) (*[]Backer, error) {
 		return nil, err
 	}
 
-	return &backers, err
+	return backers, err
 }
 
 func (ds *MySql) ClearDB() error {
