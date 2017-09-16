@@ -94,7 +94,7 @@ func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 	return int64(id), err
 }
 
-func (ds *MySql) UpdatePlayerBalance(player_id int64, sum int64, charge bool) error {
+func (ds *MySql) UpdatePlayerBalance(player_id int64, sum int, charge bool) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
