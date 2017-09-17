@@ -44,7 +44,7 @@ func (ds *MySql) GetPlayerById(playerId int64) (*Player, error) {
 	rows, err := stmt.Query()
 
 	for rows.Next() {
-		rows.Scan(&player.Id, &player.Name, &player.Balance, &player.BackId)
+		rows.Scan(&player.Id, &player.Name, &player.Points, &player.BackId)
 		//if err != nil {
 		//	return nil,err
 		//}
@@ -68,7 +68,7 @@ func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("INSERT INTO player(name,balance) VALUES('%v',%v)", p.Name, p.Balance)
+	query := fmt.Sprintf("INSERT INTO player(name,balance) VALUES('%v',%v)", p.Name, p.Points)
 	stmt, err := tx.Prepare(query)
 	if err != nil {
 		return int64(0), err

@@ -35,9 +35,9 @@ func Test_Get_Create_New_Player(t *testing.T) {
 	}
 
 	p := &Player{
-		Name:    "Ahmed",
-		Balance: 100,
-		BackId:  0,
+		Name:   "Ahmed",
+		Points: 100,
+		BackId: 0,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
@@ -52,7 +52,7 @@ func Test_Get_Create_New_Player(t *testing.T) {
 	}
 
 	assert.Equal(t, p.Name, pl.Name)
-	assert.Equal(t, p.Balance, pl.Balance)
+	assert.Equal(t, p.Points, pl.Points)
 
 }
 
@@ -69,8 +69,8 @@ func Test_Get_Player_Balance(t *testing.T) {
 	}
 
 	p := &Player{
-		Name:    "Ahmed",
-		Balance: 100,
+		Name:   "Ahmed",
+		Points: 100,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
@@ -83,7 +83,7 @@ func Test_Get_Player_Balance(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, p.Balance, balance)
+	assert.Equal(t, p.Points, balance)
 
 }
 
@@ -100,8 +100,8 @@ func Test_Add_To_Balance(t *testing.T) {
 	}
 
 	p := &Player{
-		Name:    "Ahmed",
-		Balance: 100,
+		Name:   "Ahmed",
+		Points: 100,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
@@ -135,8 +135,8 @@ func Test_Take_From_Balance(t *testing.T) {
 	}
 
 	p := &Player{
-		Name:    "Ahmed",
-		Balance: 100,
+		Name:   "Ahmed",
+		Points: 100,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
@@ -207,8 +207,8 @@ func Test_Add_Player_To_Tournament(t *testing.T) {
 	}
 
 	p := &Player{
-		Name:    "Ahmed",
-		Balance: 100,
+		Name:   "Ahmed",
+		Points: 100,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
@@ -254,18 +254,18 @@ func Test_Get_Tournament_Players_By_TournamentId(t *testing.T) {
 	}
 
 	p := &Player{
-		Name:    "Ahmed",
-		Balance: 100,
+		Name:   "Ahmed",
+		Points: 100,
 	}
 
 	p1 := &Player{
-		Name:    "Abdi",
-		Balance: 100,
+		Name:   "Abdi",
+		Points: 100,
 	}
 
 	p2 := &Player{
-		Name:    "Rudolf",
-		Balance: 100,
+		Name:   "Rudolf",
+		Points: 100,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
@@ -348,8 +348,8 @@ func Test_Set_Player_Prize(t *testing.T) {
 	}
 
 	p := &Player{
-		Name:    "Ahmed",
-		Balance: 100,
+		Name:   "Ahmed",
+		Points: 100,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
@@ -402,13 +402,13 @@ func Test_Back_Player_Tournament(t *testing.T) {
 	}
 
 	p := &Player{
-		Name:    "Ahmed",
-		Balance: 100,
+		Name:   "Ahmed",
+		Points: 100,
 	}
 
 	pb := &Player{
-		Name:    "Rudi",
-		Balance: 1000,
+		Name:   "Rudi",
+		Points: 1000,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
