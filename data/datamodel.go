@@ -30,6 +30,11 @@ type PlayerPrize struct {
 	Prize    int   `json:"prize"`
 }
 
+type PlayerBalance struct {
+	PlayerId int64 `json:"player_id"`
+	Balance    int   `json:"balance"`
+}
+
 type Backer struct {
 	Id       int64 `json:"id"`
 	PlayerId int64 `json:"player_id"`

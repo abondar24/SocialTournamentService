@@ -69,7 +69,6 @@ func (s *Server) AddPlayer(w http.ResponseWriter, r *http.Request) {
 		Points: pts,
 	}
 
-
 	_,err = s.ds.CreateNewPlayer(p)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -159,12 +158,29 @@ func (s *Server) Fund(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) AnnounceTournament(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query()["name"][0]
+	deposit := r.URL.Query()["deposit"][0]
+
+	dp,err := strconv.Atoi(deposit)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	t := &data.Tournament{
+		Name:name,
+		Deposit:dp,
+	}
+
+	_,err= s.ds.CreateNewTournament(t)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
 
 	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
-
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -174,8 +190,35 @@ func (s *Server) ResultTournament(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) Balance(w http.ResponseWriter, r *http.Request) {
+	player_id := r.URL.Query()["player_id"][0]
 
-	w.WriteHeader(http.StatusOK)
+	pid, err := strconv.ParseInt(player_id, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	err = s.checkPlayer(pid)
+	if err!=nil{
+		if err.Error() == ErrInternalError {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		if err.Error() == ErrPlayerNotFound {
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}
+
+	balance,err := s.ds.GetBalanceForPlayer(pid)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	pb := &data.PlayerBalance{
+		PlayerId:pid,
+		Balance:balance,
+	}
+
+	json.NewEncoder(w).Encode(pb)
 }
 
 func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
