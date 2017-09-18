@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	ds,err := data.ConnectToBase()
-	if err!=nil{
+	ds, err := data.ConnectToBase()
+	if err != nil {
 		log.Fatal(err)
 	}
 
