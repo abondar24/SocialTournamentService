@@ -10,15 +10,15 @@ import (
 )
 
 type Server struct {
-	logic *blogic.Logic
+	logic  *blogic.Logic
 	router *mux.Router
 }
 
 const (
-	ErrPlayerNotFound         string = "player not found"
-	ErrTournamentNotFound      string ="tournament not found"
+	ErrPlayerNotFound          string = "player not found"
+	ErrTournamentNotFound      string = "tournament not found"
 	ErrInternalError           string = "internal error"
-	ErrInsufficientBalance     string ="not enough points"
+	ErrInsufficientBalance     string = "not enough points"
 	ErrBackerIsNotInTournament string = "backer is not participating in tournament"
 )
 
@@ -42,6 +42,7 @@ func (s *Server) RunRestServer() {
 	s.router.HandleFunc("/result_tournament", s.ResultTournament).Methods("POST")
 	s.router.HandleFunc("/balance", s.Balance).Methods("GET")
 	s.router.HandleFunc("/reset", s.Reset).Methods("GET")
+	s.router.HandleFunc("/updatePrizes", s.UpdatePrizes).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8080", s.router))
 
@@ -56,14 +57,13 @@ func (s *Server) AddPlayer(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query()["name"][0]
 	points := r.URL.Query()["points"][0]
 
-
 	pts, err := strconv.Atoi(points)
 	if err != nil {
 		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.logic.AddPlayer(name,pts)
+	err = s.logic.AddPlayer(name, pts)
 	if err != nil {
 		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -88,7 +88,7 @@ func (s *Server) Take(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.logic.Take(pid,pts)
+	err = s.logic.Take(pid, pts)
 	if err != nil {
 		if err.Error() == ErrPlayerNotFound {
 			log.Fatal(err)
@@ -125,7 +125,7 @@ func (s *Server) Fund(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.logic.Fund(pid,pts)
+	err = s.logic.Fund(pid, pts)
 	if err != nil {
 		if err.Error() == ErrInternalError {
 			log.Fatal(err)
@@ -151,7 +151,7 @@ func (s *Server) AnnounceTournament(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.logic.AnnounceTournament(name,dp)
+	err = s.logic.AnnounceTournament(name, dp)
 	if err != nil {
 		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -163,7 +163,7 @@ func (s *Server) AnnounceTournament(w http.ResponseWriter, r *http.Request) {
 func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 	tournamentId := r.URL.Query()["tournament_id"][0]
 	playerId := r.URL.Query()["player_id"][0]
-	backerIds := r.URL.Query()["backer"]
+	backerIds := r.URL.Query()["backerId"]
 
 	tid, err := strconv.ParseInt(tournamentId, 10, 64)
 	if err != nil {
@@ -177,14 +177,13 @@ func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	backers,err := s.getBackersIds(backerIds)
+	backers, err := s.convertToInt64(backerIds)
 	if err != nil {
 		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-
-	err = s.logic.JoinTournament(tid,pid,backers)
+	err = s.logic.JoinTournament(tid, pid, backers)
 	if err != nil {
 		if err.Error() == ErrInternalError {
 			log.Fatal(err)
@@ -201,13 +200,12 @@ func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 		}
 
-
 		if err.Error() == ErrInsufficientBalance {
 			log.Fatal(err)
 			w.WriteHeader(http.StatusPaymentRequired)
 		}
 
-		if err.Error() == ErrBackerIsNotInTournament{
+		if err.Error() == ErrBackerIsNotInTournament {
 			log.Fatal(err)
 			w.WriteHeader(http.StatusUnauthorized)
 		}
@@ -216,10 +214,29 @@ func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-
-//TODO
 func (s *Server) ResultTournament(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	tournamentId := r.URL.Query()["tournament_id"][0]
+	tid, err := strconv.ParseInt(tournamentId, 10, 64)
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	tr, err := s.logic.ResultTournament(tid)
+	if err != nil {
+		log.Fatal(err)
+		if err.Error() == ErrInternalError {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		if err.Error() == ErrTournamentNotFound {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}
+
+	json.NewEncoder(w).Encode(tr)
 }
 
 func (s *Server) Balance(w http.ResponseWriter, r *http.Request) {
@@ -230,7 +247,7 @@ func (s *Server) Balance(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	pb,err := s.logic.Balance(pid)
+	pb, err := s.logic.Balance(pid)
 	if err != nil {
 		if err.Error() == ErrInternalError {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -253,15 +270,39 @@ func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) getBackersIds(backerIds []string) (*[]int64, error) {
-	backers := make([]int64,0)
-	for _,backerId := range backerIds{
-		backer, err := strconv.ParseInt(backerId,10,64)
-		if err != nil {
-			return nil,err
-		}
-		backers = append(backers,backer)
+
+func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
+	tournamentId := r.URL.Query()["tournament_id"]
+	playerIds := r.URL.Query()["player_id"]
+
+	tid, err := strconv.ParseInt(tournamentId, 10, 64)
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	return &backers,nil
+    players,err := s.convertToInt64(playerIds)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	err := s.logic.UpdatePrizes(tid,players)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *Server) convertToInt64(strArray []string) (*[]int64, error) {
+	int64Array := make([]int64, 0)
+	for _, backerId := range strArray {
+		backer, err := strconv.ParseInt(backerId, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		int64Array = append(int64Array, backer)
+	}
+
+	return &int64Array, nil
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"strconv"
 )
 
 type MySql struct {
@@ -59,8 +60,7 @@ func (ds *MySql) GetPlayerById(playerId int64) (*Player, error) {
 
 }
 
-
-func (ds *MySql) GetPlayersByIds(playerIds *[]int64) ([]Player, error) {
+func (ds *MySql) GetPlayersByIds(playerIds *[]int64) (*[]Player, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -69,38 +69,42 @@ func (ds *MySql) GetPlayersByIds(playerIds *[]int64) ([]Player, error) {
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("SELECT * FROM player where id in k%v", *playerIds)
-	fmt.Println(query)
+	arr := ""
+	for i, id := range *playerIds {
+
+		s := strconv.FormatInt(id, 10)
+		arr += s
+		if i != len(*playerIds)-1 {
+			arr += ","
+		}
+
+	}
+	query := fmt.Sprintf("SELECT * FROM player where id in (%v )", arr)
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
 		return nil, err
 	}
 
-
 	defer stmt.Close()
 
 	rows, err := stmt.Query()
-
-
 	backers := make([]Player, 0)
 
 	for rows.Next() {
 		b := Player{}
-		rows.Scan(&b.Id, &b.Name, &b.Points)
+		rows.Scan(&b.Id, &b.Name, &b.Points, )
 		backers = append(backers, b)
 	}
-
 
 	err = tx.Commit()
 	if err != nil {
 		return nil, err
 	}
 
-	return backers, err
+	return &backers, err
 
 }
-
 
 func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 
@@ -111,7 +115,7 @@ func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("INSERT INTO player(name,balance) VALUES('%v',%v)", p.Name, p.Points)
+	query := fmt.Sprintf("INSERT INTO player(name,points) VALUES('%v',%v)", p.Name, p.Points)
 	stmt, err := tx.Prepare(query)
 	if err != nil {
 		return int64(0), err
@@ -149,9 +153,9 @@ func (ds *MySql) UpdatePlayerBalance(player_id int64, sum int, charge bool) erro
 	query := ""
 
 	if !charge {
-		query = fmt.Sprintf("UPDATE player set balance = balance + %v where id=%v", sum, player_id)
+		query = fmt.Sprintf("UPDATE player set points = points + %v where id=%v", sum, player_id)
 	} else {
-		query = fmt.Sprintf("UPDATE player set balance = balance - %v where id=%v", sum, player_id)
+		query = fmt.Sprintf("UPDATE player set points = points - %v where id=%v", sum, player_id)
 	}
 
 	stmt, err := tx.Prepare(query)
@@ -182,7 +186,7 @@ func (ds *MySql) GetBalanceForPlayer(playerId int64) (int, error) {
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("SELECT player.balance FROM player where id=%v", playerId)
+	query := fmt.Sprintf("SELECT player.points FROM player where id=%v", playerId)
 	stmt, err := tx.Prepare(query)
 	if err != nil {
 		return 0, err
@@ -315,7 +319,7 @@ func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer) (int64, error) {
 
 }
 
-func (ds *MySql) GetTournamentPlayersByTournamentId(tournamentId int64) ([]TournamentPlayer, error) {
+func (ds *MySql) GetTournamentPlayersIdsByTournamentId(tournamentId int64) (*[]int64, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -324,7 +328,7 @@ func (ds *MySql) GetTournamentPlayersByTournamentId(tournamentId int64) ([]Tourn
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("SELECT * FROM tournament_player where tournament_id=%v", tournamentId)
+	query := fmt.Sprintf("SELECT player_id FROM tournament_player where tournament_id=%v", tournamentId)
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
@@ -337,12 +341,12 @@ func (ds *MySql) GetTournamentPlayersByTournamentId(tournamentId int64) ([]Tourn
 
 	//it's a change in Go 1.8
 	//if you see DB Example from GoBase it's different a little
-	players := make([]TournamentPlayer, 0)
+	players := make([]int64, 0)
 
+	id := int64(0)
 	for rows.Next() {
-		tp := TournamentPlayer{}
-		rows.Scan(&tp.Id, &tp.TournamentId, &tp.PlayerId, &tp.Prize)
-		players = append(players, tp)
+		rows.Scan(&id)
+		players = append(players, id)
 	}
 
 	err = tx.Commit()
@@ -350,10 +354,10 @@ func (ds *MySql) GetTournamentPlayersByTournamentId(tournamentId int64) ([]Tourn
 		return nil, err
 	}
 
-	return players, err
+	return &players, err
 }
 
-func (ds *MySql) SetPlayersPrize(tp *TournamentPlayer) error {
+func (ds *MySql) SetPlayersPrize(winners *[]TournamentPlayer) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -386,7 +390,7 @@ func (ds *MySql) SetPlayersPrize(tp *TournamentPlayer) error {
 	return err
 }
 
-func (ds *MySql) GetTournamentWinners(tournamentId int64) ([]TournamentPlayer, error) {
+func (ds *MySql) GetTournamentWinners(tournamentId int64) (*[]TournamentPlayer, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -419,48 +423,48 @@ func (ds *MySql) GetTournamentWinners(tournamentId int64) ([]TournamentPlayer, e
 		return nil, err
 	}
 
-	return players, err
+	return &players, err
 }
 
-func (ds *MySql) BackPlayerForTournament(backers *[]Backer) (int64, error) {
+func (ds *MySql) BackPlayerForTournament(backers *[]Backer) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
-		return int64(0), err
+		return err
 	}
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("INSERT INTO backer(player_id,backer_id,sum)")
-	//
-	//for i, b := range backers {
-	//	// index is the index where we are
-	//	// element is the element from someSlice for where we are
-	//}
+	query := fmt.Sprintf("INSERT INTO backer(player_id,backer_id,sum) VALUES ")
+
+	vals := ""
+	for i, b := range *backers {
+		vals += fmt.Sprintf("(%v,%v,%v)", b.PlayerId, b.BackerId, b.Id)
+		if i != len(*backers)-1 {
+			vals += ","
+		}
+	}
+
+    query +=vals
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
-		return int64(0), err
+		return err
 	}
 
 	defer stmt.Close()
 
-	res, err := stmt.Exec()
+	_, err = stmt.Exec()
 	if err != nil {
-		return int64(0), err
-	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
-		return int64(0), err
+		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return int64(0), err
+		return err
 	}
 
-	return int64(id), err
+	return err
 
 }
 

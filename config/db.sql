@@ -7,7 +7,7 @@ GRANT ALL ON social_tournament.* to 'root'@'%' identified by 'alex21';
 CREATE TABLE player(
   id BIGINT NOT NULL PRIMARY KEY  AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL ,
-  balance INT UNSIGNED NOT NULL
+  points INT UNSIGNED NOT NULL
 );
 
 CREATE TABLE tournament(
