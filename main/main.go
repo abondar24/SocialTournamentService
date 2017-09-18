@@ -4,6 +4,7 @@ import (
 	"github.com/abondar24/SocialTournamentService/api"
 	"github.com/abondar24/SocialTournamentService/data"
 	"log"
+	"github.com/abondar24/SocialTournamentService/blogic"
 )
 
 func main() {
@@ -12,7 +13,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := api.NewServer(ds)
-	server.RunRestServer()
+	l:= blogic.NewLogic(ds)
+	srv := api.NewServer(l)
+	srv.RunRestServer()
 
 }

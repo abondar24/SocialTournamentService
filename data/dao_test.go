@@ -37,7 +37,6 @@ func Test_Get_Create_New_Player(t *testing.T) {
 	p := &Player{
 		Name:   "Ahmed",
 		Points: 100,
-		BackId: 0,
 	}
 
 	pId, err := ds.CreateNewPlayer(p)
@@ -53,6 +52,68 @@ func Test_Get_Create_New_Player(t *testing.T) {
 
 	assert.Equal(t, p.Name, pl.Name)
 	assert.Equal(t, p.Points, pl.Points)
+
+}
+
+
+func Test_Get_Players_By_Id(t *testing.T) {
+	ds, err := ConnectToBase()
+	if err != nil {
+
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p := &Player{
+		Name:   "Ahmed",
+		Points: 100,
+	}
+
+	p1 := &Player{
+		Name:   "Rudi",
+		Points: 100,
+	}
+
+
+	p2 := &Player{
+		Name:   "Mark",
+		Points: 100,
+	}
+
+	playerIds := make([]int64,0)
+
+	pId, err := ds.CreateNewPlayer(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	playerIds = append(playerIds,pId)
+
+	p1Id, err := ds.CreateNewPlayer(p1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	playerIds = append(playerIds,p1Id)
+
+
+	p2Id, err := ds.CreateNewPlayer(p2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	playerIds = append(playerIds,p2Id)
+
+	pls, err := ds.GetPlayersByIds(&playerIds)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 3,len(pls))
 
 }
 
@@ -389,56 +450,56 @@ func Test_Set_Player_Prize(t *testing.T) {
 
 }
 
-func Test_Back_Player_Tournament(t *testing.T) {
-	ds, err := ConnectToBase()
-	if err != nil {
-
-		t.Fatal(err)
-	}
-
-	err = ds.ClearDB()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := &Player{
-		Name:   "Ahmed",
-		Points: 100,
-	}
-
-	pb := &Player{
-		Name:   "Rudi",
-		Points: 1000,
-	}
-
-	pId, err := ds.CreateNewPlayer(p)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	pbId, err := ds.CreateNewPlayer(pb)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	back := &Backer{
-		PlayerId: pId,
-		BackerId: pbId,
-		Sum:      200,
-	}
-
-	bId, err := ds.BackPlayerForTournament(back)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.True(t, bId > 0)
-
-	backers, err := ds.GetPlayerBackers(pId)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, 1, len(backers))
-	assert.Equal(t, bId, backers[0].Id)
-}
+//func Test_Back_Player_Tournament(t *testing.T) {
+//	ds, err := ConnectToBase()
+//	if err != nil {
+//
+//		t.Fatal(err)
+//	}
+//
+//	err = ds.ClearDB()
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	p := &Player{
+//		Name:   "Ahmed",
+//		Points: 100,
+//	}
+//
+//	pb := &Player{
+//		Name:   "Rudi",
+//		Points: 1000,
+//	}
+//
+//	pId, err := ds.CreateNewPlayer(p)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	pbId, err := ds.CreateNewPlayer(pb)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	back := &Backer{
+//		PlayerId: pId,
+//		BackerId: pbId,
+//		Sum:      200,
+//	}
+//
+//	bId, err := ds.BackPlayerForTournament(back)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	assert.True(t, bId > 0)
+//
+//	backers, err := ds.GetPlayerBackers(pId)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	assert.Equal(t, 1, len(backers))
+//	assert.Equal(t, bId, backers[0].Id)
+//}

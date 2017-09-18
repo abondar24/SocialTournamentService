@@ -4,7 +4,6 @@ type Player struct {
 	Id     int64  `json:"id"`
 	Name   string `json:"name"`
 	Points int    `json:"points"`
-	BackId int64  `json:"back_id"`
 }
 
 type Tournament struct {

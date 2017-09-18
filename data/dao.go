@@ -44,7 +44,7 @@ func (ds *MySql) GetPlayerById(playerId int64) (*Player, error) {
 	rows, err := stmt.Query()
 
 	for rows.Next() {
-		rows.Scan(&player.Id, &player.Name, &player.Points, &player.BackId)
+		rows.Scan(&player.Id, &player.Name, &player.Points)
 		//if err != nil {
 		//	return nil,err
 		//}
@@ -58,6 +58,49 @@ func (ds *MySql) GetPlayerById(playerId int64) (*Player, error) {
 	return player, err
 
 }
+
+
+func (ds *MySql) GetPlayersByIds(playerIds *[]int64) ([]Player, error) {
+
+	tx, err := ds.dbInst.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	defer tx.Rollback()
+
+	query := fmt.Sprintf("SELECT * FROM player where id in k%v", *playerIds)
+	fmt.Println(query)
+	stmt, err := tx.Prepare(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+
+
+	backers := make([]Player, 0)
+
+	for rows.Next() {
+		b := Player{}
+		rows.Scan(&b.Id, &b.Name, &b.Points)
+		backers = append(backers, b)
+	}
+
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return backers, err
+
+}
+
 
 func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 
@@ -379,7 +422,7 @@ func (ds *MySql) GetTournamentWinners(tournamentId int64) ([]TournamentPlayer, e
 	return players, err
 }
 
-func (ds *MySql) BackPlayerForTournament(b *Backer) (int64, error) {
+func (ds *MySql) BackPlayerForTournament(backers *[]Backer) (int64, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -388,7 +431,13 @@ func (ds *MySql) BackPlayerForTournament(b *Backer) (int64, error) {
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("INSERT INTO backer(player_id,backer_id,sum) VALUES(%v,%v,%v)", b.PlayerId, b.BackerId, b.Sum)
+	query := fmt.Sprintf("INSERT INTO backer(player_id,backer_id,sum)")
+	//
+	//for i, b := range backers {
+	//	// index is the index where we are
+	//	// element is the element from someSlice for where we are
+	//}
+
 	stmt, err := tx.Prepare(query)
 	if err != nil {
 		return int64(0), err

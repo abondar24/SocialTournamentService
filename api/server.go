@@ -5,39 +5,36 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"github.com/abondar24/SocialTournamentService/data"
 	"strconv"
-	"errors"
-
+	"github.com/abondar24/SocialTournamentService/blogic"
 )
 
 type Server struct {
-	ds     *data.MySql
+	logic *blogic.Logic
 	router *mux.Router
 }
 
 const (
-	ErrPlayerNotFound      string = "player not found"
-	ErrTournamentNotFound  string = "tournament not found"
-	ErrInternalError       string = "internal error"
-	ErrInsufficientBalance string = "not enough points"
+	ErrPlayerNotFound         string = "player not found"
+	ErrTournamentNotFound      string ="tournament not found"
+	ErrInternalError           string = "internal error"
+	ErrInsufficientBalance     string ="not enough points"
+	ErrBackerIsNotInTournament string = "backer is not participating in tournament"
 )
 
-func NewServer(dataSource *data.MySql) *Server {
+func NewServer(logic *blogic.Logic) *Server {
 	router := mux.NewRouter().StrictSlash(true)
-
 	return &Server{
-		dataSource,
+		logic,
 		router,
 	}
 }
 
 func (s *Server) RunRestServer() {
 
-
 	s.router.HandleFunc("/", s.Index)
 	s.router.HandleFunc("/add_player", s.AddPlayer).Methods("GET")
-	s.router.HandleFunc("/take/", s.Take).Methods("GET")
+	s.router.HandleFunc("/take", s.Take).Methods("GET")
 	s.router.HandleFunc("/fund", s.Fund).Methods("GET")
 	s.router.HandleFunc("/announce_tournament",
 		s.AnnounceTournament).Methods("GET")
@@ -57,101 +54,88 @@ func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 func (s *Server) AddPlayer(w http.ResponseWriter, r *http.Request) {
 
 	name := r.URL.Query()["name"][0]
-	points :=  r.URL.Query()["points"][0]
+	points := r.URL.Query()["points"][0]
+
 
 	pts, err := strconv.Atoi(points)
 	if err != nil {
+		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	p:= &data.Player{
-		Name: name,
-		Points: pts,
-	}
-
-	_,err = s.ds.CreateNewPlayer(p)
+	err = s.logic.AddPlayer(name,pts)
 	if err != nil {
+		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
-
 func (s *Server) Take(w http.ResponseWriter, r *http.Request) {
-	player_id := r.URL.Query()["player_id"][0]
-	points :=  r.URL.Query()["points"][0]
+	playerId := r.URL.Query()["player_id"][0]
+	points := r.URL.Query()["points"][0]
 
-	pid, err := strconv.ParseInt(player_id, 10, 64)
+	pid, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
+		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.checkPlayer(pid)
-	if err!=nil{
-		if err.Error() == ErrInternalError {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+	pts, err := strconv.Atoi(points)
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 
+	err = s.logic.Take(pid,pts)
+	if err != nil {
 		if err.Error() == ErrPlayerNotFound {
+			log.Fatal(err)
 			w.WriteHeader(http.StatusNotFound)
 		}
 
-	}
-
-	pts, err := strconv.Atoi(points)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	err = s.checkBalance(pid, pts)
-	if err!=nil{
 		if err.Error() == ErrInsufficientBalance {
+			log.Fatal(err)
 			w.WriteHeader(http.StatusPaymentRequired)
 		}
 
 		if err.Error() == ErrInternalError {
+			log.Fatal(err)
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-	}
-
-
-	err = s.ds.UpdatePlayerBalance(pid, pts, true)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) Fund(w http.ResponseWriter, r *http.Request) {
-	player_id := r.URL.Query()["player_id"][0]
-	points :=  r.URL.Query()["points"][0]
+	playerId := r.URL.Query()["player_id"][0]
+	points := r.URL.Query()["points"][0]
 
-	pid, err := strconv.ParseInt(player_id, 10, 64)
+	pid, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
+		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	err = s.checkPlayer(pid)
-	if err!=nil{
-		if err.Error() == ErrInternalError {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-
-		if err.Error() == ErrPlayerNotFound {
-			w.WriteHeader(http.StatusNotFound)
-		}
 	}
 
 	pts, err := strconv.Atoi(points)
 	if err != nil {
+		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.ds.UpdatePlayerBalance(pid, pts, false)
+	err = s.logic.Fund(pid,pts)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		if err.Error() == ErrInternalError {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		if err.Error() == ErrPlayerNotFound {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusNotFound)
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -161,44 +145,93 @@ func (s *Server) AnnounceTournament(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query()["name"][0]
 	deposit := r.URL.Query()["deposit"][0]
 
-	dp,err := strconv.Atoi(deposit)
+	dp, err := strconv.Atoi(deposit)
 	if err != nil {
+		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	t := &data.Tournament{
-		Name:name,
-		Deposit:dp,
-	}
-
-	_,err= s.ds.CreateNewTournament(t)
+	err = s.logic.AnnounceTournament(name,dp)
 	if err != nil {
+		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
+	tournamentId := r.URL.Query()["tournament_id"][0]
+	playerId := r.URL.Query()["player_id"][0]
+	backerIds := r.URL.Query()["backer"]
+
+	tid, err := strconv.ParseInt(tournamentId, 10, 64)
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	pid, err := strconv.ParseInt(playerId, 10, 64)
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	backers,err := s.getBackersIds(backerIds)
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+
+	err = s.logic.JoinTournament(tid,pid,backers)
+	if err != nil {
+		if err.Error() == ErrInternalError {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		if err.Error() == ErrTournamentNotFound {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusNotFound)
+		}
+
+		if err.Error() == ErrPlayerNotFound {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusNotFound)
+		}
+
+
+		if err.Error() == ErrInsufficientBalance {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusPaymentRequired)
+		}
+
+		if err.Error() == ErrBackerIsNotInTournament{
+			log.Fatal(err)
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) ResultTournament(w http.ResponseWriter, r *http.Request) {
 
+//TODO
+func (s *Server) ResultTournament(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) Balance(w http.ResponseWriter, r *http.Request) {
-	player_id := r.URL.Query()["player_id"][0]
+	playerId := r.URL.Query()["player_id"][0]
 
-	pid, err := strconv.ParseInt(player_id, 10, 64)
+	pid, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.checkPlayer(pid)
-	if err!=nil{
+	pb,err := s.logic.Balance(pid)
+	if err != nil {
 		if err.Error() == ErrInternalError {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -208,21 +241,11 @@ func (s *Server) Balance(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	balance,err := s.ds.GetBalanceForPlayer(pid)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	pb := &data.PlayerBalance{
-		PlayerId:pid,
-		Balance:balance,
-	}
-
 	json.NewEncoder(w).Encode(pb)
 }
 
 func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
-	err := s.ds.ClearDB()
+	err := s.logic.Reset()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -230,38 +253,15 @@ func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) checkPlayer(playerId int64) error {
-	p, err := s.ds.GetPlayerById(playerId)
-	if err != nil {
-		return errors.New(ErrInternalError)
+func (s *Server) getBackersIds(backerIds []string) (*[]int64, error) {
+	backers := make([]int64,0)
+	for _,backerId := range backerIds{
+		backer, err := strconv.ParseInt(backerId,10,64)
+		if err != nil {
+			return nil,err
+		}
+		backers = append(backers,backer)
 	}
 
-	if p.Id == 0 {
-		return errors.New(ErrPlayerNotFound)
-	}
-
-	return err
-}
-
-func (s *Server) checkBalance(playerId int64, chargePoints int) error {
-	p, err := s.ds.GetPlayerById(playerId)
-	if err != nil {
-		return errors.New(ErrInternalError)
-	}
-
-	balance,err := s.ds.GetBalanceForPlayer(p.Id)
-	if err != nil {
-		return errors.New(ErrInternalError)
-	}
-
-
-	if balance<chargePoints{
-		return errors.New(ErrInsufficientBalance)
-	}
-
-	if p.Id == 0 {
-		return errors.New(ErrPlayerNotFound)
-	}
-
-	return err
+	return &backers,nil
 }
