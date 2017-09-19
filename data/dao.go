@@ -13,11 +13,12 @@ type MySql struct {
 
 func ConnectToBase() (*MySql, error) {
 	instance, err := sql.Open("mysql",
-		"root:alex21@tcp(172.17.0.2:3306)/social_tournament?charset=utf8")
-
+		"root:alex21@tcp(localhost:3306)/social_tournament?charset=utf8")
 	if err != nil {
+		fmt.Println("ss-400")
 		return nil, err
 	}
+	fmt.Println("ss-300")
 
 	return &MySql{dbInst: instance}, nil
 }
@@ -93,7 +94,7 @@ func (ds *MySql) GetPlayersByIds(playerIds *[]int64) (*[]Player, error) {
 
 	for rows.Next() {
 		b := Player{}
-		rows.Scan(&b.Id, &b.Name, &b.Points, )
+		rows.Scan(&b.Id, &b.Name, &b.Points)
 		backers = append(backers, b)
 	}
 
@@ -399,8 +400,7 @@ func (ds *MySql) GetTournamentPlayersIdsByTournamentId(tournamentId int64) (*[]i
 	return &players, err
 }
 
-
-func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64,tournament int64) (int64, error) {
+func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64, tournament int64) (int64, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -409,7 +409,7 @@ func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64,tournament int
 
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("SELECT player_id FROM tournament_player WHERE tournament_id=%v AND player_id=%v", tournament,player)
+	query := fmt.Sprintf("SELECT player_id FROM tournament_player WHERE tournament_id=%v AND player_id=%v", tournament, player)
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
@@ -419,7 +419,6 @@ func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64,tournament int
 	defer stmt.Close()
 
 	rows, err := stmt.Query()
-
 
 	id := int64(0)
 	for rows.Next() {
