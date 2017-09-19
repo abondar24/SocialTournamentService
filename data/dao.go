@@ -141,7 +141,7 @@ func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 	return int64(id), err
 }
 
-func (ds *MySql) UpdatePlayerBalance(player_id int64, sum int, charge bool) error {
+func (ds *MySql) UpdatePlayerBalance(playerId int64, sum int, charge bool) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
@@ -153,9 +153,9 @@ func (ds *MySql) UpdatePlayerBalance(player_id int64, sum int, charge bool) erro
 	query := ""
 
 	if !charge {
-		query = fmt.Sprintf("UPDATE player set points = points + %v where id=%v", sum, player_id)
+		query = fmt.Sprintf("UPDATE player set points = points + %v where id=%v", sum, playerId)
 	} else {
-		query = fmt.Sprintf("UPDATE player set points = points - %v where id=%v", sum, player_id)
+		query = fmt.Sprintf("UPDATE player set points = points - %v where id=%v", sum, playerId)
 	}
 
 	stmt, err := tx.Prepare(query)
@@ -164,6 +164,48 @@ func (ds *MySql) UpdatePlayerBalance(player_id int64, sum int, charge bool) erro
 	}
 
 	defer stmt.Close()
+	_, err = stmt.Exec()
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (ds *MySql) UpdatePlayersBalance(playerIds *[]int64, sum int) error {
+
+	tx, err := ds.dbInst.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	ids := ""
+	for i, id := range *playerIds {
+
+		s := strconv.FormatInt(id, 10)
+		ids += s
+		if i != len(*playerIds)-1 {
+			ids += ","
+		}
+
+	}
+
+	query := fmt.Sprintf("UPDATE player SET points = points - %v WHERE id in (%v) ", sum, ids)
+
+	stmt, err := tx.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
 	_, err = stmt.Exec()
 	if err != nil {
 		return err
@@ -357,6 +399,41 @@ func (ds *MySql) GetTournamentPlayersIdsByTournamentId(tournamentId int64) (*[]i
 	return &players, err
 }
 
+
+func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64,tournament int64) (int64, error) {
+
+	tx, err := ds.dbInst.Begin()
+	if err != nil {
+		return int64(0), err
+	}
+
+	defer tx.Rollback()
+
+	query := fmt.Sprintf("SELECT player_id FROM tournament_player WHERE tournament_id=%v AND player_id=%v", tournament,player)
+	stmt, err := tx.Prepare(query)
+
+	if err != nil {
+		return int64(0), err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+
+
+	id := int64(0)
+	for rows.Next() {
+		rows.Scan(&id)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return int64(0), err
+	}
+
+	return id, err
+}
+
 func (ds *MySql) SetPlayerPrize(tp *TournamentPlayer) error {
 
 	tx, err := ds.dbInst.Begin()
@@ -445,7 +522,7 @@ func (ds *MySql) BackPlayerForTournament(backers *[]Backer) error {
 		}
 	}
 
-    query +=vals
+	query += vals
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {

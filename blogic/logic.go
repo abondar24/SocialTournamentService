@@ -11,6 +11,7 @@ const (
 	ErrInternalError           string = "internal error"
 	ErrInsufficientBalance     string = "not enough points"
 	ErrBackerIsNotInTournament string = "backer is not participating in tournament"
+	ErrPlayerAlreadyInTournament string = "player is already in tournament"
 )
 
 type Logic struct {
@@ -31,6 +32,9 @@ func (l *Logic) AddPlayer(name string, points int) error {
 	}
 
 	_, err := l.ds.CreateNewPlayer(p)
+	if err != nil {
+		err = errors.New(ErrInternalError)
+	}
 
 	return err
 }
@@ -50,7 +54,6 @@ func (l *Logic) Take(playerId int64, points int) error {
 	if err != nil {
 		err = errors.New(ErrInternalError)
 	}
-
 
 	return err
 }
@@ -99,6 +102,11 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 		if err != nil {
 			return err
 		}
+		err = l.ds.UpdatePlayerBalance(playerId, t.Deposit, true)
+		if err != nil {
+			return errors.New(ErrInternalError)
+		}
+
 	} else {
 
 		err = l.checkPlayers(backerIds)
@@ -119,6 +127,16 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 			return errors.New(ErrInternalError)
 		}
 
+		err = l.ds.UpdatePlayersBalance(backerIds, sum)
+		if err != nil {
+			return errors.New(ErrInternalError)
+		}
+
+		err = l.ds.UpdatePlayerBalance(playerId, t.Deposit-p.Points, true)
+		if err != nil {
+			return errors.New(ErrInternalError)
+		}
+
 	}
 
 	tp := &data.TournamentPlayer{
@@ -130,6 +148,7 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 	if err != nil {
 		return errors.New(ErrInternalError)
 	}
+
 
 	return err
 }
@@ -189,22 +208,21 @@ func (l *Logic) Reset() error {
 	return err
 }
 
-func (l *Logic) UpdatePrizes(tournamentId int64,playerId int64,prize int) error {
-	_,err:=l.checkTournament(tournamentId)
+func (l *Logic) UpdatePrizes(tournamentId int64, playerId int64, prize int) error {
+	_, err := l.checkTournament(tournamentId)
 	if err != nil {
 		return errors.New(ErrInternalError)
 	}
 
-
-	_,err = l.checkPlayer(playerId)
+	_, err = l.checkPlayer(playerId)
 	if err != nil {
 		return errors.New(ErrInternalError)
 	}
 
-	tp:= &data.TournamentPlayer{
-		TournamentId:tournamentId,
-		PlayerId:playerId,
-		Prize:prize,
+	tp := &data.TournamentPlayer{
+		TournamentId: tournamentId,
+		PlayerId:     playerId,
+		Prize:        prize,
 	}
 
 	err = l.ds.SetPlayerPrize(tp)
@@ -227,6 +245,19 @@ func (l *Logic) checkPlayer(playerId int64) (*data.Player, error) {
 	}
 
 	return p, err
+}
+
+func (l *Logic) checkPlayerInTournament(playerId ,tournamentId int64)  error {
+	pId, err := l.ds.GetTournamentPlayerIdFromTournament(playerId,tournamentId)
+	if err != nil {
+		return  errors.New(ErrInternalError)
+	}
+
+	if pId==0{
+		return  errors.New(ErrPlayerAlreadyInTournament)
+	}
+
+	return err
 }
 
 func (l *Logic) checkBalanceForCharging(playerId int64, chargePoints int) error {
@@ -330,7 +361,7 @@ func (l *Logic) getBackers(backerIds *[]int64, playerId int64, sum int) *[]data.
 
 	for _, bid := range *backerIds {
 		b := data.Backer{
-			BackerId:bid,
+			BackerId: bid,
 			PlayerId: playerId,
 			Sum:      sum,
 		}

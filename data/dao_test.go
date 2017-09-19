@@ -5,22 +5,6 @@ import (
 	"testing"
 )
 
-func Test_Clear_DataBase(t *testing.T) {
-	ds, err := ConnectToBase()
-	if err != nil {
-
-		t.Fatal(err)
-	}
-
-	err = ds.ClearDB()
-	if err != nil {
-
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, nil, err)
-
-}
 
 func Test_Get_Create_New_Player(t *testing.T) {
 	ds, err := ConnectToBase()
@@ -218,6 +202,55 @@ func Test_Take_From_Balance(t *testing.T) {
 	assert.Equal(t, 50, balance)
 }
 
+
+func Test_Take_Update_Players_Balance(t *testing.T) {
+	ds, err := ConnectToBase()
+	if err != nil {
+
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p := &Player{
+		Name:   "Ahmed",
+		Points: 100,
+	}
+
+	p1 := &Player{
+		Name:   "Ahmed",
+		Points: 200,
+	}
+
+	p2 := &Player{
+		Name:   "Ahmed",
+		Points: 300,
+	}
+
+	pId, err := ds.CreateNewPlayer(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p1Id, err := ds.CreateNewPlayer(p1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p2Id, err := ds.CreateNewPlayer(p2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ids := []int64{pId,p1Id,p2Id}
+	err = ds.UpdatePlayersBalance(&ids,50)
+
+	assert.Equal(t, nil, err)
+}
+
 func Test_Add_New_Tournament(t *testing.T) {
 	ds, err := ConnectToBase()
 	if err != nil {
@@ -391,6 +424,63 @@ func Test_Get_Tournament_Players_By_TournamentId(t *testing.T) {
 
 }
 
+func Test_Get_TournamentPlayerId_In_Tournament(t *testing.T) {
+	ds, err := ConnectToBase()
+	if err != nil {
+
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	to := &Tournament{
+		Name:    "blacjack",
+		Deposit: 20,
+	}
+
+	p := &Player{
+		Name:   "Ahmed",
+		Points: 100,
+	}
+
+
+
+	pId, err := ds.CreateNewPlayer(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tId, err := ds.CreateNewTournament(to)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tp := &TournamentPlayer{
+		PlayerId:     pId,
+		TournamentId: tId,
+		Prize:        0,
+	}
+
+	_, err = ds.AddPlayerToTournament(tp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+
+	plId, err := ds.GetTournamentPlayerIdFromTournament(pId,tId)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, pId,plId)
+
+}
+
+
+
 func Test_Set_Player_Prize(t *testing.T) {
 	ds, err := ConnectToBase()
 	if err != nil {
@@ -505,4 +595,22 @@ func Test_Back_Player_Tournament(t *testing.T) {
 	}
 
 	assert.Equal(t, 1, len(backers))
+}
+
+
+func Test_Clear_DataBase(t *testing.T) {
+	ds, err := ConnectToBase()
+	if err != nil {
+
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, nil, err)
+
 }
