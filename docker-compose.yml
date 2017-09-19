@@ -1,0 +1,30 @@
+version: '3'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    # Link to containers in another service
+    links:
+      - db
+    volumes:
+      - $GOPATH
+    networks:
+          - mynet
+
+  db:
+    image: library/mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: alex21
+    volumes:
+          - ../../../../_local_mysql_data:/var/lib/mysql
+    networks:
+         - mynet
+
+
+networks:
+  mynet:
+    driver: "bridge"

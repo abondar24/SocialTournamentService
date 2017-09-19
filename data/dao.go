@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"strconv"
+	"log"
 )
 
 type MySql struct {
@@ -13,12 +14,11 @@ type MySql struct {
 
 func ConnectToBase() (*MySql, error) {
 	instance, err := sql.Open("mysql",
-		"root:alex21@tcp(localhost:3306)/social_tournament?charset=utf8")
+		"root:alex21@tcp(db:3306)/social_tournament?charset=utf8")
 	if err != nil {
-		fmt.Println("ss-400")
+		log.Println(err.Error())
 		return nil, err
 	}
-	fmt.Println("ss-300")
 
 	return &MySql{dbInst: instance}, nil
 }
@@ -27,6 +27,7 @@ func (ds *MySql) GetPlayerById(playerId int64) (*Player, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -36,6 +37,7 @@ func (ds *MySql) GetPlayerById(playerId int64) (*Player, error) {
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -54,6 +56,7 @@ func (ds *MySql) GetPlayerById(playerId int64) (*Player, error) {
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -65,6 +68,7 @@ func (ds *MySql) GetPlayersByIds(playerIds *[]int64) (*[]Player, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -84,6 +88,7 @@ func (ds *MySql) GetPlayersByIds(playerIds *[]int64) (*[]Player, error) {
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -100,6 +105,7 @@ func (ds *MySql) GetPlayersByIds(playerIds *[]int64) (*[]Player, error) {
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -111,6 +117,7 @@ func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -126,6 +133,7 @@ func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 
 	res, err := stmt.Exec()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -136,6 +144,7 @@ func (ds *MySql) CreateNewPlayer(p *Player) (int64, error) {
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -146,6 +155,7 @@ func (ds *MySql) UpdatePlayerBalance(playerId int64, sum int, charge bool) error
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -161,17 +171,20 @@ func (ds *MySql) UpdatePlayerBalance(playerId int64, sum int, charge bool) error
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	defer stmt.Close()
 	_, err = stmt.Exec()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -182,6 +195,7 @@ func (ds *MySql) UpdatePlayersBalance(playerIds *[]int64, sum int) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -202,6 +216,7 @@ func (ds *MySql) UpdatePlayersBalance(playerIds *[]int64, sum int) error {
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -209,11 +224,13 @@ func (ds *MySql) UpdatePlayersBalance(playerIds *[]int64, sum int) error {
 
 	_, err = stmt.Exec()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -224,6 +241,7 @@ func (ds *MySql) GetBalanceForPlayer(playerId int64) (int, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return 0, err
 	}
 
@@ -242,12 +260,14 @@ func (ds *MySql) GetBalanceForPlayer(playerId int64) (int, error) {
 	for rows.Next() {
 		err := rows.Scan(&balance)
 		if err != nil {
+			log.Println(err.Error())
 			return 0, err
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return 0, err
 	}
 
@@ -259,6 +279,7 @@ func (ds *MySql) CreateNewTournament(t *Tournament) (int64, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -267,6 +288,7 @@ func (ds *MySql) CreateNewTournament(t *Tournament) (int64, error) {
 	query := fmt.Sprintf("INSERT INTO tournament(name,deposit) VALUES('%v',%v)", t.Name, t.Deposit)
 	stmt, err := tx.Prepare(query)
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -274,6 +296,7 @@ func (ds *MySql) CreateNewTournament(t *Tournament) (int64, error) {
 
 	res, err := stmt.Exec()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -284,6 +307,7 @@ func (ds *MySql) CreateNewTournament(t *Tournament) (int64, error) {
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -294,6 +318,7 @@ func (ds *MySql) GetTournamentById(tournamentId int64) (*Tournament, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -303,6 +328,7 @@ func (ds *MySql) GetTournamentById(tournamentId int64) (*Tournament, error) {
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -318,6 +344,7 @@ func (ds *MySql) GetTournamentById(tournamentId int64) (*Tournament, error) {
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -329,6 +356,7 @@ func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer) (int64, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -338,6 +366,7 @@ func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer) (int64, error) {
 		tp.PlayerId, tp.TournamentId, tp.Prize)
 	stmt, err := tx.Prepare(query)
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -350,11 +379,13 @@ func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer) (int64, error) {
 
 	id, err := res.LastInsertId()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -366,6 +397,7 @@ func (ds *MySql) GetTournamentPlayersIdsByTournamentId(tournamentId int64) (*[]i
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -375,6 +407,7 @@ func (ds *MySql) GetTournamentPlayersIdsByTournamentId(tournamentId int64) (*[]i
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -394,6 +427,7 @@ func (ds *MySql) GetTournamentPlayersIdsByTournamentId(tournamentId int64) (*[]i
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -404,6 +438,7 @@ func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64, tournament in
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -413,6 +448,7 @@ func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64, tournament in
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -427,6 +463,7 @@ func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64, tournament in
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return int64(0), err
 	}
 
@@ -437,6 +474,7 @@ func (ds *MySql) SetPlayerPrize(tp *TournamentPlayer) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -448,6 +486,7 @@ func (ds *MySql) SetPlayerPrize(tp *TournamentPlayer) error {
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -455,11 +494,13 @@ func (ds *MySql) SetPlayerPrize(tp *TournamentPlayer) error {
 
 	_, err = stmt.Exec()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -470,6 +511,7 @@ func (ds *MySql) GetTournamentWinners(tournamentId int64) (*[]TournamentPlayer, 
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -479,6 +521,7 @@ func (ds *MySql) GetTournamentWinners(tournamentId int64) (*[]TournamentPlayer, 
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -496,6 +539,7 @@ func (ds *MySql) GetTournamentWinners(tournamentId int64) (*[]TournamentPlayer, 
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -506,6 +550,7 @@ func (ds *MySql) BackPlayerForTournament(backers *[]Backer) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -525,6 +570,7 @@ func (ds *MySql) BackPlayerForTournament(backers *[]Backer) error {
 
 	stmt, err := tx.Prepare(query)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -532,11 +578,13 @@ func (ds *MySql) BackPlayerForTournament(backers *[]Backer) error {
 
 	_, err = stmt.Exec()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -548,6 +596,7 @@ func (ds *MySql) GetPlayerBackers(playerId int64) ([]Backer, error) {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -557,6 +606,7 @@ func (ds *MySql) GetPlayerBackers(playerId int64) ([]Backer, error) {
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -574,6 +624,7 @@ func (ds *MySql) GetPlayerBackers(playerId int64) ([]Backer, error) {
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -593,17 +644,33 @@ func (ds *MySql) ClearDB() error {
 func (ds *MySql) TruncateSingleTable(table string) error {
 
 	tx, err := ds.dbInst.Begin()
+	if err != nil {
+		log.Println(err.Error())
+		return  err
+	}
 
 	defer tx.Rollback()
 
 	query := fmt.Sprintf("DELETE  FROM %v", table)
 
 	stmt, err := tx.Prepare(query)
+	if err != nil {
+		log.Println(err.Error())
+		return  err
+	}
 
 	defer stmt.Close()
 	_, err = stmt.Exec()
+	if err != nil {
+		log.Println(err.Error())
+		return  err
+	}
 
 	err = tx.Commit()
+	if err != nil {
+		log.Println(err.Error())
+		return  err
+	}
 
 	return err
 }
@@ -611,15 +678,27 @@ func (ds *MySql) TruncateSingleTable(table string) error {
 func (ds *MySql) DropDatabase(dbName string) error {
 
 	tx, err := ds.dbInst.Begin()
+	if err != nil {
+		log.Println(err.Error())
+		return  err
+	}
 
 	defer tx.Rollback()
 
 	query := fmt.Sprintf("DROP DATABASE %v", dbName)
 
 	stmt, err := tx.Prepare(query)
+	if err != nil {
+		log.Println(err.Error())
+		return  err
+	}
 
 	defer stmt.Close()
 	_, err = stmt.Exec()
+	if err != nil {
+		log.Println(err.Error())
+		return  err
+	}
 
 	return err
 }

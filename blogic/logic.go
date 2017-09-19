@@ -3,6 +3,7 @@ package blogic
 import (
 	"errors"
 	"github.com/abondar24/SocialTournamentService/data"
+	"log"
 )
 
 const (
@@ -33,6 +34,7 @@ func (l *Logic) AddPlayer(name string, points int) error {
 
 	_, err := l.ds.CreateNewPlayer(p)
 	if err != nil {
+		log.Println(err.Error())
 		err = errors.New(ErrInternalError)
 	}
 
@@ -42,16 +44,19 @@ func (l *Logic) AddPlayer(name string, points int) error {
 func (l *Logic) Take(playerId int64, points int) error {
 	_, err := l.checkPlayer(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	err = l.checkBalanceForCharging(playerId, points)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	err = l.ds.UpdatePlayerBalance(playerId, points, true)
 	if err != nil {
+		log.Println(err.Error())
 		err = errors.New(ErrInternalError)
 	}
 
@@ -61,11 +66,13 @@ func (l *Logic) Take(playerId int64, points int) error {
 func (l *Logic) Fund(playerId int64, points int) error {
 	_, err := l.checkPlayer(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	err = l.ds.UpdatePlayerBalance(playerId, points, false)
 	if err != nil {
+		log.Println(err.Error())
 		err = errors.New(ErrInternalError)
 	}
 
@@ -80,6 +87,7 @@ func (l *Logic) AnnounceTournament(name string, deposit int) error {
 
 	_, err := l.ds.CreateNewTournament(t)
 	if err != nil {
+		log.Println(err.Error())
 		err = errors.New(ErrInternalError)
 	}
 
@@ -89,21 +97,25 @@ func (l *Logic) AnnounceTournament(name string, deposit int) error {
 func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]int64) error {
 	t, err := l.checkTournament(tournamentId)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	p, err := l.checkPlayer(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
 	if len(*backerIds) == 0 {
 		err = l.checkBalanceForBacking(playerId, tournamentId)
 		if err != nil {
+			log.Println(err.Error())
 			return err
 		}
 		err = l.ds.UpdatePlayerBalance(playerId, t.Deposit, true)
 		if err != nil {
+			log.Println(err.Error())
 			return errors.New(ErrInternalError)
 		}
 
@@ -111,11 +123,13 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 
 		err = l.checkPlayers(backerIds)
 		if err != nil {
+			log.Println(err.Error())
 			return err
 		}
 
 		backerIds, err = l.checkBackersAreInTournament(tournamentId, backerIds)
 		if err != nil {
+			log.Println(err.Error())
 			return err
 		}
 
@@ -124,16 +138,19 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 
 		err = l.ds.BackPlayerForTournament(backers)
 		if err != nil {
+			log.Println(err.Error())
 			return errors.New(ErrInternalError)
 		}
 
 		err = l.ds.UpdatePlayersBalance(backerIds, sum)
 		if err != nil {
+			log.Println(err.Error())
 			return errors.New(ErrInternalError)
 		}
 
 		err = l.ds.UpdatePlayerBalance(playerId, t.Deposit-p.Points, true)
 		if err != nil {
+			log.Println(err.Error())
 			return errors.New(ErrInternalError)
 		}
 
@@ -146,6 +163,7 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 
 	_, err = l.ds.AddPlayerToTournament(tp)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
@@ -156,11 +174,13 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 func (l *Logic) Balance(playerId int64) (*data.PlayerBalance, error) {
 	_, err := l.checkPlayer(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
 	balance, err := l.ds.GetBalanceForPlayer(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -175,11 +195,13 @@ func (l *Logic) Balance(playerId int64) (*data.PlayerBalance, error) {
 func (l *Logic) ResultTournament(tournamentId int64) (*data.TournamentResults, error) {
 	_, err := l.checkTournament(tournamentId)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
 	winners, err := l.ds.GetTournamentWinners(tournamentId)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -204,18 +226,23 @@ func (l *Logic) ResultTournament(tournamentId int64) (*data.TournamentResults, e
 
 func (l *Logic) Reset() error {
 	err := l.ds.ClearDB()
-
+    if err!=nil{
+		log.Println(err.Error())
+    	return errors.New(ErrInternalError)
+	}
 	return err
 }
 
 func (l *Logic) UpdatePrizes(tournamentId int64, playerId int64, prize int) error {
 	_, err := l.checkTournament(tournamentId)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
 	_, err = l.checkPlayer(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
@@ -237,6 +264,7 @@ func (l *Logic) UpdatePrizes(tournamentId int64, playerId int64, prize int) erro
 func (l *Logic) checkPlayer(playerId int64) (*data.Player, error) {
 	p, err := l.ds.GetPlayerById(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, errors.New(ErrInternalError)
 	}
 
@@ -250,6 +278,7 @@ func (l *Logic) checkPlayer(playerId int64) (*data.Player, error) {
 func (l *Logic) checkPlayerInTournament(playerId ,tournamentId int64)  error {
 	pId, err := l.ds.GetTournamentPlayerIdFromTournament(playerId,tournamentId)
 	if err != nil {
+		log.Println(err.Error())
 		return  errors.New(ErrInternalError)
 	}
 
@@ -263,6 +292,7 @@ func (l *Logic) checkPlayerInTournament(playerId ,tournamentId int64)  error {
 func (l *Logic) checkBalanceForCharging(playerId int64, chargePoints int) error {
 	balance, err := l.ds.GetBalanceForPlayer(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
@@ -276,11 +306,13 @@ func (l *Logic) checkBalanceForCharging(playerId int64, chargePoints int) error 
 func (l *Logic) checkBalanceForBacking(playerId int64, tournamentId int64) error {
 	balance, err := l.ds.GetBalanceForPlayer(playerId)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
 	t, err := l.ds.GetTournamentById(tournamentId)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
@@ -294,6 +326,7 @@ func (l *Logic) checkBalanceForBacking(playerId int64, tournamentId int64) error
 func (l *Logic) checkTournament(tournamentId int64) (*data.Tournament, error) {
 	t, err := l.ds.GetTournamentById(tournamentId)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, errors.New(ErrInternalError)
 	}
 
@@ -307,10 +340,12 @@ func (l *Logic) checkTournament(tournamentId int64) (*data.Tournament, error) {
 func (l *Logic) checkPlayers(players *[]int64) error {
 	b, err := l.ds.GetPlayersByIds(players)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
 	if len(*b) != len(*players) {
+		log.Println(err.Error())
 		return errors.New(ErrPlayerNotFound)
 	}
 
@@ -320,6 +355,7 @@ func (l *Logic) checkPlayers(players *[]int64) error {
 func (l *Logic) checkBackersAreInTournament(tournamentId int64, backers *[]int64) (*[]int64, error) {
 	players, err := l.ds.GetTournamentPlayersIdsByTournamentId(tournamentId)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, errors.New(ErrInternalError)
 	}
 
@@ -341,6 +377,7 @@ func (l *Logic) checkBackersAreInTournament(tournamentId int64, backers *[]int64
 	}
 
 	if len(newBackers) != len(*backers) {
+		log.Println(err.Error())
 		err = errors.New(ErrBackerIsNotInTournament)
 	}
 

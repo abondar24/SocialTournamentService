@@ -30,8 +30,6 @@ CREATE TABLE backer(
   sum INT UNSIGNED NOT NULL
 );
 
-ALTER TABLE player ADD CONSTRAINT fk_player_backer
-FOREIGN KEY (back_id) REFERENCES backer (id);
 
 ALTER TABLE tournament_player ADD CONSTRAINT fk_player_tournament_player
 FOREIGN KEY (player_id) REFERENCES player (id);
