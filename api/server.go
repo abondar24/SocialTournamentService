@@ -272,8 +272,9 @@ func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
 
 
 func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
-	tournamentId := r.URL.Query()["tournament_id"]
-	playerIds := r.URL.Query()["player_id"]
+	tournamentId := r.URL.Query()["tournament_id"][0]
+	playerId:= r.URL.Query()["player_id"][0]
+	prize:= r.URL.Query()["prize"][0]
 
 	tid, err := strconv.ParseInt(tournamentId, 10, 64)
 	if err != nil {
@@ -281,12 +282,17 @@ func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-    players,err := s.convertToInt64(playerIds)
+    player,err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err := s.logic.UpdatePrizes(tid,players)
+	pr,err:= strconv.Atoi(prize)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	err = s.logic.UpdatePrizes(tid,player,pr)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}

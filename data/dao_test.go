@@ -435,7 +435,7 @@ func Test_Set_Player_Prize(t *testing.T) {
 	}
 
 	tp.Prize = 500
-	err = ds.SetPlayersPrize(tp)
+	err = ds.SetPlayerPrize(tp)
 	if err != nil {
 		t.Fatal(err)
 	}

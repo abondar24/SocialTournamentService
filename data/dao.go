@@ -357,7 +357,7 @@ func (ds *MySql) GetTournamentPlayersIdsByTournamentId(tournamentId int64) (*[]i
 	return &players, err
 }
 
-func (ds *MySql) SetPlayersPrize(winners *[]TournamentPlayer) error {
+func (ds *MySql) SetPlayerPrize(tp *TournamentPlayer) error {
 
 	tx, err := ds.dbInst.Begin()
 	if err != nil {

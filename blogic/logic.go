@@ -3,7 +3,6 @@ package blogic
 import (
 	"errors"
 	"github.com/abondar24/SocialTournamentService/data"
-	"fmt"
 )
 
 const (
@@ -38,7 +37,6 @@ func (l *Logic) AddPlayer(name string, points int) error {
 
 func (l *Logic) Take(playerId int64, points int) error {
 	_, err := l.checkPlayer(playerId)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}
@@ -53,7 +51,6 @@ func (l *Logic) Take(playerId int64, points int) error {
 		err = errors.New(ErrInternalError)
 	}
 
-	fmt.Println(err)
 
 	return err
 }
@@ -119,7 +116,6 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 
 		err = l.ds.BackPlayerForTournament(backers)
 		if err != nil {
-			fmt.Println(err.Error())
 			return errors.New(ErrInternalError)
 		}
 
@@ -132,7 +128,6 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 
 	_, err = l.ds.AddPlayerToTournament(tp)
 	if err != nil {
-		fmt.Println("ss2")
 		return errors.New(ErrInternalError)
 	}
 
@@ -194,19 +189,31 @@ func (l *Logic) Reset() error {
 	return err
 }
 
-func (l *Logic) UpdatePrizes(tournamentId int64,playerIds *[]int64) error {
+func (l *Logic) UpdatePrizes(tournamentId int64,playerId int64,prize int) error {
 	_,err:=l.checkTournament(tournamentId)
 	if err != nil {
 		return errors.New(ErrInternalError)
 	}
 
 
-	err = l.checkPlayers(playerIds)
+	_,err = l.checkPlayer(playerId)
 	if err != nil {
 		return errors.New(ErrInternalError)
 	}
 
-	err = l.ds.SetPlayersPrize()
+	tp:= &data.TournamentPlayer{
+		TournamentId:tournamentId,
+		PlayerId:playerId,
+		Prize:prize,
+	}
+
+	err = l.ds.SetPlayerPrize(tp)
+	if err != nil {
+		return errors.New(ErrInternalError)
+	}
+
+	return err
+
 }
 
 func (l *Logic) checkPlayer(playerId int64) (*data.Player, error) {
@@ -323,7 +330,7 @@ func (l *Logic) getBackers(backerIds *[]int64, playerId int64, sum int) *[]data.
 
 	for _, bid := range *backerIds {
 		b := data.Backer{
-			Id:       bid,
+			BackerId:bid,
 			PlayerId: playerId,
 			Sum:      sum,
 		}
