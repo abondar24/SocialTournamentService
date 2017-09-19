@@ -1,7 +1,16 @@
-#Small backend service on Go
+# Small backend service on Go
 
-#Idea
+# Intro
 It's a backend for a FAKE gaming service.
+This service has been developed purely for a demo purpose.There is a lot of stuff to make it production ready.
+
+I wanted to show the following stuff:
+ - transactions in Go
+ - gorilla mux and parameters
+ - deploying Go app in Docker
+ - docker-compose usage
+
+# Idea
 
 The idea is that people can use service and take part in different games. Every player has it's own balance of points 
 on which he can take part in different games. 
@@ -11,7 +20,7 @@ In such case they get the money back + % of prize equal to
 % entry deposit he had backed the player .
 
 
-#Implementation
+# Implementation
 
 The service implemented as REST API and stores data in relational database
 You can get the idea of database structure if you look at db.sql file
@@ -114,7 +123,7 @@ Method returns the following response codes:
     500 – internal error
 ```
 
-#Install and run
+# Install and run
 
 - To build a project and use it on your own machine run make install and run ./main
 - To run in docker via docker compose:
@@ -129,3 +138,7 @@ Method returns the following response codes:
 ```
 - If you are not using docker compose you need to deploy MySQL database with hostname db and root password from db.sql file
 - If you are using docker compose database with empty tables is created automatically
+
+# TODO and issues
+- Write a frontend using Vue.JS + Node.js
+- fix problem with make test.Currently you can run tests separately by go test in blogick and dao package.
