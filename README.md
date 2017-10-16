@@ -131,13 +131,6 @@ Method returns the following response codes:
    docker-compose build 
    docker-compose up -d
 ```
-- To run a docker image:
-```yaml
-   docker pull abondar/socialtournamentservice_web
-   docker run -it --name=<your_name> -p 8080:8080 abondar/socialtournamentservice_web
-```
-- If you are not using docker compose you need to deploy MySQL database with hostname db and root password from db.sql file
-- If you are using docker compose database with empty tables is created automatically
 
 # TODO and issues
 - Write a frontend using Vue.JS + Node.js
