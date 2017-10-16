@@ -126,12 +126,22 @@ Method returns the following response codes:
 # Install and run
 
 - To build a project and use it on your own machine run make install and run ./main
+- To build a docker image run docker build -t <name> . If you want to run with compose,change image name in yml
+
+- To run in docker without docker compose:
+     
+  ```
+  create a database container with name db(to be able to link)
+  docker run -it --name=<your_name> -p 8080:8080 --link db abondar/socialtournament 
+  ```
+
 - To run in docker via docker compose:
-```yaml
-   docker-compose build 
+  ```yaml
    docker-compose up -d
-```
+  ```
+If you are not using docker compose you need to deploy MySQL database with root password from db.sql file and link it to container when you run
+If you are using docker compose database with empty tables is created automatically
 
 # TODO and issues
 - Write a frontend using Vue.JS + Node.js
-- fix problem with make test.Currently you can run tests separately by go test in blogick and dao package.
+- fix problem with make test.Currently you can run te
