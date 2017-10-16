@@ -127,6 +127,7 @@ Method returns the following response codes:
 
 - To build a project and use it on your own machine run make install and run ./main
 - To build a docker image run docker build -t <name> . If you want to run with compose,change image name in yml
+- To run tests you should have a MySqlServer up and running on localhost
 
 - To run in docker without docker compose:
      
