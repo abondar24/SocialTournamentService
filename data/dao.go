@@ -23,6 +23,18 @@ func ConnectToBase() (*MySql, error) {
 	return &MySql{dbInst: instance}, nil
 }
 
+func ConnectToTestBase() (*MySql, error) {
+        instance, err := sql.Open("mysql",
+                "root:alex21@tcp(localhost:3306)/social_tournament?charset=utf8")
+        if err != nil {
+                log.Println(err.Error())
+                return nil, err
+        }
+
+        return &MySql{dbInst: instance}, nil
+}
+
+
 func (ds *MySql) GetPlayerById(playerId int64) (*Player, error) {
 
 	tx, err := ds.dbInst.Begin()

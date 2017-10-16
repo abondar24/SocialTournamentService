@@ -8,7 +8,7 @@ import (
 
 func Test_Logic_Join_Tournament(t *testing.T) {
 
-	ds, err := data.ConnectToBase()
+	ds, err := data.ConnectToTestBase()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +53,7 @@ func Test_Logic_Join_Tournament(t *testing.T) {
 
 func Test_Logic_Join_Tournament_InsufficientFunds(t *testing.T) {
 
-	ds, err := data.ConnectToBase()
+	ds, err := data.ConnectToTestBase()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func Test_Logic_Join_Tournament_InsufficientFunds(t *testing.T) {
 
 func Test_Logic_Join_Tournament_With_Backers(t *testing.T) {
 
-	ds, err := data.ConnectToBase()
+	ds, err := data.ConnectToTestBase()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,7 +178,7 @@ func Test_Logic_Join_Tournament_With_Backers(t *testing.T) {
 
 func Test_Logic_Join_Tournament_With_Backers_Not_In_Tournament(t *testing.T) {
 
-	ds, err := data.ConnectToBase()
+	ds, err := data.ConnectToTestBase()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +253,7 @@ func Test_Logic_Join_Tournament_With_Backers_Not_In_Tournament(t *testing.T) {
 
 func Test_Get_Tournament_Results(t *testing.T) {
 
-	ds, err := data.ConnectToBase()
+	ds, err := data.ConnectToTestBase()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -331,7 +331,7 @@ func Test_Get_Tournament_Results(t *testing.T) {
 
 
 func Test_Clear_DataBase(t *testing.T) {
-	ds, err := data.ConnectToBase()
+	ds, err := data.ConnectToTestBase()
 	if err != nil {
 		t.Fatal(err)
 	}

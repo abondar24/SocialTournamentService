@@ -7,7 +7,7 @@ import (
 
 
 func Test_Get_Create_New_Player(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -41,7 +41,7 @@ func Test_Get_Create_New_Player(t *testing.T) {
 
 
 func Test_Get_Players_By_Id(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -102,7 +102,7 @@ func Test_Get_Players_By_Id(t *testing.T) {
 }
 
 func Test_Get_Player_Balance(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -133,7 +133,7 @@ func Test_Get_Player_Balance(t *testing.T) {
 }
 
 func Test_Add_To_Balance(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -168,7 +168,7 @@ func Test_Add_To_Balance(t *testing.T) {
 }
 
 func Test_Take_From_Balance(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -204,7 +204,7 @@ func Test_Take_From_Balance(t *testing.T) {
 
 
 func Test_Take_Update_Players_Balance(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -252,7 +252,7 @@ func Test_Take_Update_Players_Balance(t *testing.T) {
 }
 
 func Test_Add_New_Tournament(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -284,7 +284,7 @@ func Test_Add_New_Tournament(t *testing.T) {
 }
 
 func Test_Add_Player_To_Tournament(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -331,7 +331,7 @@ func Test_Add_Player_To_Tournament(t *testing.T) {
 }
 
 func Test_Get_Tournament_Players_By_TournamentId(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -425,7 +425,7 @@ func Test_Get_Tournament_Players_By_TournamentId(t *testing.T) {
 }
 
 func Test_Get_TournamentPlayerId_In_Tournament(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -482,7 +482,7 @@ func Test_Get_TournamentPlayerId_In_Tournament(t *testing.T) {
 
 
 func Test_Set_Player_Prize(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -544,7 +544,7 @@ func Test_Set_Player_Prize(t *testing.T) {
 }
 
 func Test_Back_Player_Tournament(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
@@ -599,7 +599,7 @@ func Test_Back_Player_Tournament(t *testing.T) {
 
 
 func Test_Clear_DataBase(t *testing.T) {
-	ds, err := ConnectToBase()
+	ds, err := ConnectToTestBase()
 	if err != nil {
 
 		t.Fatal(err)
