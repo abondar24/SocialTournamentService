@@ -140,9 +140,8 @@ Method returns the following response codes:
   ```yaml
    docker-compose up -d
   ```
-If you are not using docker compose you need to deploy MySQL database with root password from db.sql file and link it to container when you run
-If you are using docker compose database with empty tables is created automatically
-
+- Create database from db.sql file
+ 
 # TODO and issues
 - Write a frontend using Vue.JS + Node.js
 - fix problem with make test.Currently you can run te
