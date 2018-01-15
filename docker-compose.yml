@@ -5,7 +5,7 @@ services:
       "abondar/socialtournament"
     ports:
       - 8080:8080
-    # Link to containers in another service
+    # Link to containers in another services
     links:
       - db
     volumes:

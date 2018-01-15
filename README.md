@@ -142,6 +142,5 @@ Method returns the following response codes:
   ```
 - Create database from db.sql file
  
-# TODO and issues
+# TODO
 - Write a frontend using Vue.JS + Node.js
-- fix problem with make test.Currently you can run te
