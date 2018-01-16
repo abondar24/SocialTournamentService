@@ -12,7 +12,6 @@ const (
 	ErrTournamentNotFound        = "tournament not found"
 	ErrInternalError             = "internal error"
 	ErrInsufficientBalance       = "not enough points"
-	ErrBackerIsNotInTournament   = "backer is not participating in tournament"
 	ErrPlayerAlreadyInTournament = "player is already in tournament"
 )
 
@@ -183,7 +182,7 @@ func (l *Logic) JoinTournament(tournamentId int64, playerId int64, backerIds *[]
 			return err
 		}
 
-		backerIds, err = l.checkBackersAreInTournament(tournamentId, backerIds, tx)
+		backerIds, err = l.checkBackersInTournament(tournamentId, backerIds, tx)
 		if err != nil {
 			log.Println(err.Error())
 			return err
@@ -447,8 +446,8 @@ func (l *Logic) checkPlayers(players *[]int64, tx *sql.Tx) error {
 	return err
 }
 
-func (l *Logic) checkBackersAreInTournament(tournamentId int64, backers *[]int64, tx *sql.Tx) (*[]int64, error) {
-	players, err := l.ds.GetTournamentPlayersIdsByTournamentId(tournamentId, tx)
+func (l *Logic) checkBackersInTournament(tournamentId int64, backers *[]int64, tx *sql.Tx) (*[]int64, error) {
+	players, err := l.ds.GetPlayersByTournament(tournamentId, tx)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, errors.New(ErrInternalError)
@@ -463,20 +462,17 @@ func (l *Logic) checkBackersAreInTournament(tournamentId int64, backers *[]int64
 			backersMap[player] = false
 		}
 	}
-	newBackers := make([]int64, 0)
+
+	// only existing ones
+	cleanBackers := make([]int64, 0)
 	for k, v := range backersMap {
 		if v {
-			newBackers = append(newBackers, k)
+			cleanBackers = append(cleanBackers, k)
 		}
 
 	}
 
-	if len(newBackers) != len(*backers) {
-		log.Println(err.Error())
-		err = errors.New(ErrBackerIsNotInTournament)
-	}
-
-	return &newBackers, err
+	return &cleanBackers, err
 }
 
 func arrayContains(s *[]int64, e int64) bool {

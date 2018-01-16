@@ -280,7 +280,7 @@ func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer, tx *sql.Tx) (int64,
 
 }
 
-func (ds *MySql) GetTournamentPlayersIdsByTournamentId(tournamentId int64, tx *sql.Tx) (*[]int64, error) {
+func (ds *MySql) GetPlayersByTournament(tournamentId int64, tx *sql.Tx) (*[]int64, error) {
 	query := fmt.Sprintf("SELECT player_id FROM tournament_player where tournament_id=%v", tournamentId)
 	stmt, err := tx.Prepare(query)
 

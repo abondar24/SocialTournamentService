@@ -1,10 +1,154 @@
 package blogic
 
 import (
+	"github.com/abondar24/SocialTournamentService/data"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"github.com/abondar24/SocialTournamentService/data"
 )
+
+func TestLogic_AddPlayer(t *testing.T) {
+	ds, err := data.ConnectToTestBase()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	l := NewLogic(ds)
+
+	pName := "Ahmed"
+	pPoints := 100
+
+	pId, err := l.AddPlayer(pName, pPoints)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.True(t, pId > 0)
+	assert.Nil(t, err)
+
+}
+
+func TestLogic_Take(t *testing.T) {
+	ds, err := data.ConnectToTestBase()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	l := NewLogic(ds)
+
+	pName := "Ahmed"
+	pPoints := 100
+
+	pId, err := l.AddPlayer(pName, pPoints)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = l.Take(pId, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tx, err := ds.BeginTx()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer tx.Rollback()
+
+	p, err := ds.GetPlayerById(pId, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 50, p.Points)
+}
+
+func TestLogic_Fund(t *testing.T) {
+	ds, err := data.ConnectToTestBase()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	l := NewLogic(ds)
+
+	pName := "Ahmed"
+	pPoints := 100
+
+	pId, err := l.AddPlayer(pName, pPoints)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = l.Fund(pId, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tx, err := ds.BeginTx()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer tx.Rollback()
+
+	p, err := ds.GetPlayerById(pId, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 150, p.Points)
+}
+
+func TestLogic_AnnounceTournament(t *testing.T) {
+	ds, err := data.ConnectToTestBase()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	l := NewLogic(ds)
+
+	tName := "blacjack"
+	tDeposit := 50
+
+	tId, err := l.AnnounceTournament(tName, tDeposit)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.True(t, tId > 0)
+	assert.Nil(t, err)
+
+}
 
 func Test_Logic_Join_Tournament(t *testing.T) {
 
@@ -20,36 +164,31 @@ func Test_Logic_Join_Tournament(t *testing.T) {
 
 	l := NewLogic(ds)
 
-	p := &data.Player{
-		Name:   "Ahmed",
-		Points: 100,
-	}
+	pName := "Ahmed"
+	pPoints := 100
 
+	tName := "blacjack"
+	tDeposit := 50
 
-	to := &data.Tournament{
-		Name:    "blacjack",
-		Deposit: 50,
-	}
-
-	pId, err := ds.CreateNewPlayer(p)
+	pId, err := l.AddPlayer(pName, pPoints)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-
-	tId, err := ds.CreateNewTournament(to)
+	tId, err := l.AnnounceTournament(tName, tDeposit)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	backerIds := &[]int64{}
 
-	err = l.JoinTournament(tId,pId,backerIds )
+	err = l.JoinTournament(tId, pId, backerIds)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	assert.Equal(t, nil,err)
+	assert.Equal(t, nil, err)
 }
-
-
 
 func Test_Logic_Join_Tournament_InsufficientFunds(t *testing.T) {
 
@@ -65,33 +204,26 @@ func Test_Logic_Join_Tournament_InsufficientFunds(t *testing.T) {
 
 	l := NewLogic(ds)
 
-	p := &data.Player{
-		Name:   "Ahmed",
-		Points: 100,
-	}
+	pName := "Ahmed"
+	pPoints := 100
 
+	tName := "blacjack"
+	tDeposit := 200
 
-	to := &data.Tournament{
-		Name:    "blacjack",
-		Deposit: 200,
-	}
-
-	pId, err := ds.CreateNewPlayer(p)
+	pId, err := l.AddPlayer(pName, pPoints)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-
-	tId, err := ds.CreateNewTournament(to)
+	tId, err := l.AnnounceTournament(tName, tDeposit)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	backerIds := &[]int64{}
 
-	err = l.JoinTournament(tId,pId,backerIds )
-
-	assert.Equal(t, "not enough points",err.Error())
+	err = l.JoinTournament(tId, pId, backerIds)
+	assert.Equal(t, "not enough points", err.Error())
 }
 
 func Test_Logic_Join_Tournament_With_Backers(t *testing.T) {
@@ -108,76 +240,59 @@ func Test_Logic_Join_Tournament_With_Backers(t *testing.T) {
 
 	l := NewLogic(ds)
 
-	p := &data.Player{
-		Name:   "Ahmed",
-		Points: 100,
-	}
+	pName := "Ahmed"
+	pPoints := 100
 
-	pb := &data.Player{
-		Name:   "Rudi",
-		Points: 1000,
-	}
+	tName := "blacjack"
+	tDeposit := 200
 
-	pb1 := &data.Player{
-		Name:   "Hans",
-		Points: 1000,
-	}
+	pbName := "Rudi"
+	pbPoints := 1000
 
-	to := &data.Tournament{
-		Name:    "blacjack",
-		Deposit: 200,
-	}
+	pb1Name := "Hans"
+	pb1Points := 1000
 
-	pId, err := ds.CreateNewPlayer(p)
+	pId, err := l.AddPlayer(pName, pPoints)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pbId, err := ds.CreateNewPlayer(pb)
+	pbId, err := l.AddPlayer(pbName, pbPoints)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pb1Id, err := ds.CreateNewPlayer(pb1)
+	pb1Id, err := l.AddPlayer(pb1Name, pb1Points)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	tId, err := ds.CreateNewTournament(to)
+	tId, err := l.AnnounceTournament(tName, tDeposit)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	tp := &data.TournamentPlayer{
-		PlayerId:     pbId,
-		TournamentId: tId,
-	}
-
-	tp1 := &data.TournamentPlayer{
-		PlayerId:     pb1Id,
-		TournamentId: tId,
-	}
-
-	_, err = ds.AddPlayerToTournament(tp)
+	err = l.JoinTournament(tId, pbId, &[]int64{})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = ds.AddPlayerToTournament(tp1)
+	err = l.JoinTournament(tId, pb1Id, &[]int64{})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	backerIds := &[]int64{pbId, pb1Id}
 
-	err = l.JoinTournament(tId,pId,backerIds)
+	err = l.JoinTournament(tId, pId, backerIds)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	assert.Equal(t, nil,err)
+	assert.Equal(t, nil, err)
 }
-
 
 func Test_Logic_Join_Tournament_With_Backers_Not_In_Tournament(t *testing.T) {
-
 	ds, err := data.ConnectToTestBase()
 	if err != nil {
 		t.Fatal(err)
@@ -190,68 +305,84 @@ func Test_Logic_Join_Tournament_With_Backers_Not_In_Tournament(t *testing.T) {
 
 	l := NewLogic(ds)
 
-	p := &data.Player{
-		Name:   "Ahmed",
-		Points: 100,
-	}
+	pName := "Ahmed"
+	pPoints := 100
 
-	pb := &data.Player{
-		Name:   "Rudi",
-		Points: 1000,
-	}
+	tName := "blacjack"
+	tDeposit := 200
 
-	pb1 := &data.Player{
-		Name:   "Hans",
-		Points: 1000,
-	}
+	pbName := "Rudi"
+	pbPoints := 1000
 
-	to := &data.Tournament{
-		Name:    "blacjack",
-		Deposit: 200,
-	}
+	pb1Name := "Hans"
+	pb1Points := 1000
 
-	pId, err := ds.CreateNewPlayer(p)
+	pId, err := l.AddPlayer(pName, pPoints)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pbId, err := ds.CreateNewPlayer(pb)
+	pbId, err := l.AddPlayer(pbName, pbPoints)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pb1Id, err := ds.CreateNewPlayer(pb1)
+	pb1Id, err := l.AddPlayer(pb1Name, pb1Points)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	tId, err := ds.CreateNewTournament(to)
+	tId, err := l.AnnounceTournament(tName, tDeposit)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	tp := &data.TournamentPlayer{
-		PlayerId:     pbId,
-		TournamentId: tId,
-	}
-
-
-	_, err = ds.AddPlayerToTournament(tp)
+	err = l.JoinTournament(tId, pbId, &[]int64{})
 	if err != nil {
 		t.Fatal(err)
 	}
-
-
 
 	backerIds := &[]int64{pbId, pb1Id}
 
-	err = l.JoinTournament(tId,pId,backerIds )
+	err = l.JoinTournament(tId, pId, backerIds)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	assert.Equal(t, "backer is not participating in tournament",err.Error())
+	assert.Equal(t, nil, err)
 }
 
+func TestLogic_Balance(t *testing.T) {
+	ds, err := data.ConnectToTestBase()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-func Test_Get_Tournament_Results(t *testing.T) {
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	l := NewLogic(ds)
+
+	pName := "Ahmed"
+	pPoints := 100
+
+	pId, err := l.AddPlayer(pName, pPoints)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	b, err := l.Balance(pId)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, pId, b.PlayerId)
+	assert.Equal(t, pPoints, b.Balance)
+}
+
+func TestLogic_ResultTournament(t *testing.T) {
 
 	ds, err := data.ConnectToTestBase()
 	if err != nil {
@@ -265,70 +396,99 @@ func Test_Get_Tournament_Results(t *testing.T) {
 
 	l := NewLogic(ds)
 
-	p := &data.Player{
-		Name:   "Ahmed",
-		Points: 100,
-	}
+	pName := "Ahmed"
+	pPoints := 100
 
-	pb := &data.Player{
-		Name:   "Rudi",
-		Points: 1000,
-	}
+	tName := "blacjack"
+	tDeposit := 200
 
+	pbName := "Rudi"
+	pbPoints := 1000
 
-
-	to := &data.Tournament{
-		Name:    "blacjack",
-		Deposit: 200,
-	}
-
-	pId, err := ds.CreateNewPlayer(p)
+	pId, err := l.AddPlayer(pName, pPoints)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pbId, err := ds.CreateNewPlayer(pb)
+	pbId, err := l.AddPlayer(pbName, pbPoints)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-
-	tId, err := ds.CreateNewTournament(to)
+	tId, err := l.AnnounceTournament(tName, tDeposit)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	backerIds := &[]int64{pbId}
 
-	err = l.JoinTournament(tId,pbId,&[]int64{})
+	err = l.JoinTournament(tId, pbId, &[]int64{})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = l.JoinTournament(tId,pId,backerIds)
+	err = l.JoinTournament(tId, pId, backerIds)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = l.UpdatePrizes(tId,pId,50)
+	err = l.UpdatePrizes(tId, pId, 50)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = l.UpdatePrizes(tId,pbId,50)
+	err = l.UpdatePrizes(tId, pbId, 50)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	tr,err :=l.ResultTournament(tId)
+	tr, err := l.ResultTournament(tId)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, tId,tr.TournamentId)
-	assert.Equal(t, 2,len(tr.Winners))
+	assert.Equal(t, tId, tr.TournamentId)
+	assert.Equal(t, 2, len(tr.Winners))
 }
 
+func TestLogic_UpdatePrizes(t *testing.T) {
+	ds, err := data.ConnectToTestBase()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ds.ClearDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	l := NewLogic(ds)
+
+	pName := "Ahmed"
+	pPoints := 100
+
+	tName := "blacjack"
+	tDeposit := 200
+
+	pId, err := l.AddPlayer(pName, pPoints)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tId, err := l.AnnounceTournament(tName, tDeposit)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	prize := 100
+
+	err = l.UpdatePrizes(tId, pId, prize)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, nil, err)
+}
 
 func Test_Clear_DataBase(t *testing.T) {
 	ds, err := data.ConnectToTestBase()
@@ -341,6 +501,5 @@ func Test_Clear_DataBase(t *testing.T) {
 		t.Fatal(err)
 	}
 	err = ds.ClearDB()
-
 
 }
