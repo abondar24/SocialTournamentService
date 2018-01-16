@@ -61,7 +61,7 @@ Method returns the following response codes:
 - Create a new tournament
 ```yaml
 Creates a new tournament
-GET /announceTournament?name=1&deposit=1000
+GET /announce_tournament?name=1&deposit=1000
 Method returns the following response codes:
     201 – tournament created
     500 – internal error
@@ -70,7 +70,7 @@ Method returns the following response codes:
 - Add player to tournament and add his backers 
 ```yaml
 Adds a new player to the tournament
-GET /joinTournament?tournament_id=1&player_id=P1&backer_id=P2&backer_id=P3
+GET /join_tournament?tournament_id=1&player_id=P1&backer_id=P2&backer_id=P3
 Method returns the following response codes:
     200 – player added 
     401 – backer doesn't take part in the tournament

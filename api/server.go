@@ -2,12 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/abondar24/SocialTournamentService/blogic"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
-	"github.com/abondar24/SocialTournamentService/blogic"
-	"fmt"
 )
 
 type Server struct {
@@ -64,12 +64,14 @@ func (s *Server) AddPlayer(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.logic.AddPlayer(name, pts)
+	pId, err := s.logic.AddPlayer(name, pts)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(pId)
 }
 
 func (s *Server) Take(w http.ResponseWriter, r *http.Request) {
@@ -141,12 +143,13 @@ func (s *Server) AnnounceTournament(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.logic.AnnounceTournament(name, dp)
+	tId, err := s.logic.AnnounceTournament(name, dp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(tId)
 }
 
 func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
@@ -203,8 +206,8 @@ func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
 	tournamentId := r.URL.Query()["tournament_id"][0]
-	playerId:= r.URL.Query()["player_id"][0]
-	prize:= r.URL.Query()["prize"][0]
+	playerId := r.URL.Query()["player_id"][0]
+	prize := r.URL.Query()["prize"][0]
 
 	tid, err := strconv.ParseInt(tournamentId, 10, 64)
 	if err != nil {
@@ -212,24 +215,23 @@ func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	player,err := strconv.ParseInt(playerId, 10, 64)
+	player, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	pr,err:= strconv.Atoi(prize)
+	pr, err := strconv.Atoi(prize)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.logic.UpdatePrizes(tid,player,pr)
+	err = s.logic.UpdatePrizes(tid, player, pr)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	w.WriteHeader(http.StatusOK)
 }
-
 
 func (s *Server) ResultTournament(w http.ResponseWriter, r *http.Request) {
 	tournamentId := r.URL.Query()["tournament_id"][0]
@@ -282,8 +284,6 @@ func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
-
-
 
 func (s *Server) convertToInt64(strArray []string) (*[]int64, error) {
 	int64Array := make([]int64, 0)
