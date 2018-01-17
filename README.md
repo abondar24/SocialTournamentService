@@ -125,19 +125,12 @@ Method returns the following response codes:
 
 # Install and run
 
-- To build a project and use it on your own machine run make install and run ./main
-- To build a docker image run docker build -t <name> . If you want to run with compose,change image name in yml
+- To build a project and use it on your own machine run make install and run ./main (in such case change database hostname from 'db')
 - To run tests you should have a MySqlServer up and running on localhost
-
-- To run in docker without docker compose:
-     
-  ```
-  create a database container with name db(to be able to link)
-  docker run -it --name=<your_name> -p 8080:8080 --link db abondar/socialtournament 
-  ```
 
 - To run in docker via docker compose:
   ```yaml
+   docker-compose build
    docker-compose up -d
   ```
 - Create database from db.sql file

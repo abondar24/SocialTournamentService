@@ -1,8 +1,11 @@
 version: '3'
 services:
   web:
-    image:
-      "abondar/socialtournament"
+    build:
+           context: .
+           dockerfile: Dockerfile
+    container_name: sts_web
+    restart: always
     ports:
       - 8080:8080
     # Link to containers in another services
@@ -16,6 +19,7 @@ services:
   db:
     image: library/mysql:latest
     restart: always
+    container_name: sts_db
     environment:
       MYSQL_ROOT_PASSWORD: alex21
     volumes:
