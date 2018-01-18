@@ -43,10 +43,17 @@ https://swaggerhub.com/apis/abondar/SocialTournamentService/1.0.0
  
 # Generate Swagger API reference
 ```yaml
+  Install go-swagger
   In api package dir
     
   swagger generate spec -o ./swagger.json
   swagger validate swagger.json
+```
+If you run your app without docker , you can run swagger ui localy 
+```yaml
+  In api package dir
+  
+  swagger serve swagger.json
 ```
 
 # TODO
