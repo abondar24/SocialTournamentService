@@ -28,6 +28,7 @@ You can get the idea of database structure if you look at db.sql file
 
 You can find REST API specification on SwaggerHub:
 https://swaggerhub.com/apis/abondar/SocialTournamentService/1.0.0
+Or you can access it locally by http://localhost:8024/docs
 
 # Install and run
 
@@ -40,6 +41,7 @@ https://swaggerhub.com/apis/abondar/SocialTournamentService/1.0.0
    docker-compose up -d
   ```
 5) Create database from db.sql file
+6) Enable Swagger-UI  docker exec -d sts_web swagger serve -p 8024 --no-open swagger.json
  
 # Generate Swagger API reference
 ```yaml
@@ -49,12 +51,5 @@ https://swaggerhub.com/apis/abondar/SocialTournamentService/1.0.0
   swagger generate spec -o ./swagger.json
   swagger validate swagger.json
 ```
-If you run your app without docker , you can run swagger ui localy 
-```yaml
-  In api package dir
-  
-  swagger serve swagger.json
-```
-
 # TODO
 - Write a frontend using Vue.JS + Node.js

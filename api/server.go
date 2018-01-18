@@ -16,7 +16,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/abondar24/SocialTournamentService/blogic"
-	"github.com/go-openapi/loads"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"

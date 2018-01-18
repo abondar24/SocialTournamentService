@@ -1,4 +1,5 @@
 FROM iron/go:dev
+FROM quay.io/goswagger/swagger
 
 WORKDIR /app
 
@@ -7,4 +8,5 @@ ADD . $SRC_DIR
 
 RUN cd $SRC_DIR/main; go get
 RUN cd $SRC_DIR/main; go build -o social; cp social /app/
+RUN cp $SRC_DIR/api/swagger.json /app/
 ENTRYPOINT ["./social"]

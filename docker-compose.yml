@@ -8,6 +8,7 @@ services:
     restart: always
     ports:
       - 8080:8080
+      - 8024:8024
     # Link to containers in another services
     links:
       - db
