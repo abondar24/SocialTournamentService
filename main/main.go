@@ -8,7 +8,6 @@ import (
 	"log"
 )
 
-//go:generate swagger generate spec model
 func main() {
 	ds, err := data.ConnectToBase()
 	if err != nil {
@@ -19,5 +18,4 @@ func main() {
 	l := blogic.NewLogic(ds)
 	srv := api.NewServer(l)
 	srv.RunRestServer()
-
 }

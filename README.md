@@ -28,23 +28,20 @@ You can get the idea of database structure if you look at db.sql file
 
 REST API can be seen in Swagger UI.
 
-You can find API specification
-
-- Locally:
-
-- On SwaggerHub:
+You can find API specification on SwaggerHub:
 https://swaggerhub.com/apis/abondar/SocialTournamentService/1.0.0
 
 # Install and run
 
 1) To build a project and use it on your own machine run make install and run ./main (in such case change database hostname from 'db')
 2) To run tests you should have a MySqlServer up and running on localhost
-3) To run in docker via docker compose:
+3) Go to api directory and generate swagger.json as described below
+4) To run in docker via docker compose:
   ```yaml
    docker-compose build
    docker-compose up -d
   ```
-4) Create database from db.sql file
+5) Create database from db.sql file
  
 # Generate Swagger API reference
 ```yaml

@@ -16,7 +16,7 @@
       "name": "MIT",
       "url": "http://opensource.org/licenses/MIT"
     },
-    "version": "0.0.1",
+    "version": "1.0.0",
     "title": "SocialTournamentService API"
   },
   "host": "localhost:8080",

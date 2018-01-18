@@ -1,7 +1,7 @@
 //     Schemes: http, https
 //     Host: localhost:8080
 //     BasePath: /v2
-//     Version: 0.0.1
+//     Version: 1.0.0
 //     Title: SocialTournamentService API
 //     License: MIT http://opensource.org/licenses/MIT
 //     Contact: Alex Bondar<abondar1992@gmail.com>
