@@ -1,3 +1,15 @@
+//     Schemes: http, https
+//     Host: localhost:8080
+//     BasePath: /v2
+//     Version: 0.0.1
+//     Title: SocialTournamentService API
+//     License: MIT http://opensource.org/licenses/MIT
+//     Contact: Alex Bondar<abondar1992@gmail.com>
+//
+//     Produces:
+//     - application/json
+//
+// swagger:meta
 package api
 
 import (
@@ -16,12 +28,11 @@ type Server struct {
 }
 
 const (
-	ErrPlayerNotFound          string = "player not found"
-	ErrTournamentNotFound      string = "tournament not found"
-	ErrInternalError           string = "internal error"
-	ErrInsufficientBalance     string = "not enough points"
-	ErrBackerIsNotInTournament string = "backer is not participating in tournament"
-	ErrPlayerAlreadyInTournament
+	ErrPlayerNotFound            = "player not found"
+	ErrTournamentNotFound        = "tournament not found"
+	ErrInternalError             = "internal error"
+	ErrInsufficientBalance       = "not enough points"
+	ErrPlayerAlreadyInTournament = "player is already participating participating in tournament"
 )
 
 func NewServer(logic *blogic.Logic) *Server {
@@ -34,26 +45,38 @@ func NewServer(logic *blogic.Logic) *Server {
 
 func (s *Server) RunRestServer() {
 
-	s.router.HandleFunc("/", s.Index)
-	s.router.HandleFunc("/add_player", s.AddPlayer).Methods("GET")
-	s.router.HandleFunc("/take", s.Take).Methods("GET")
-	s.router.HandleFunc("/fund", s.Fund).Methods("GET")
-	s.router.HandleFunc("/announce_tournament",
-		s.AnnounceTournament).Methods("GET")
-	s.router.HandleFunc("/join_tournament", s.JoinTournament).Methods("GET")
-	s.router.HandleFunc("/result_tournament", s.ResultTournament).Methods("POST")
-	s.router.HandleFunc("/balance", s.Balance).Methods("GET")
-	s.router.HandleFunc("/reset", s.Reset).Methods("GET")
-	s.router.HandleFunc("/update_prizes", s.UpdatePrizes).Methods("GET")
+	s.router.HandleFunc("/v2/", s.Index)
+	s.router.HandleFunc("/v2/add_player", s.AddPlayer).Methods("POST")
+	s.router.HandleFunc("/v2/take", s.Take).Methods("PUT")
+	s.router.HandleFunc("/v2/fund", s.Fund).Methods("PUT")
+	s.router.HandleFunc("/v2/announce_tournament", s.AnnounceTournament).Methods("POST")
+	s.router.HandleFunc("/v2/join_tournament", s.JoinTournament).Methods("PUT")
+	s.router.HandleFunc("/v2/result_tournament", s.ResultTournament).Methods("GET")
+	s.router.HandleFunc("/v2/balance", s.Balance).Methods("GET")
+	s.router.HandleFunc("/v2/reset", s.Reset).Methods("GET")
+	s.router.HandleFunc("/v2/update_prizes", s.UpdatePrize).Methods("PUT")
 
 	log.Fatal(http.ListenAndServe(":8080", s.router))
 
 }
 
+// Index swagger:route GET / Index
+//
+// Test server is up.
+//
+// Responses:
+//    200: rsUp
 func (s *Server) Index(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Server is running")
 }
 
+// AddPlayer swagger:route POST /add_player  AddPlayer
+//
+// Add a new player.
+//
+// Responses:
+//    201: rsCreated
+//    500: errInternalError
 func (s *Server) AddPlayer(w http.ResponseWriter, r *http.Request) {
 
 	name := r.URL.Query()["name"][0]
@@ -74,6 +97,15 @@ func (s *Server) AddPlayer(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pId)
 }
 
+// Take swagger:route PUT /take Take
+//
+// Charge a player player.
+//
+// Responses:
+//    200: rsBalanceChanged
+//    404: errPlayerTournamentNotFound
+//    402: errInsufficientBalance
+//    500: errInternalError
 func (s *Server) Take(w http.ResponseWriter, r *http.Request) {
 	playerId := r.URL.Query()["player_id"][0]
 	points := r.URL.Query()["points"][0]
@@ -106,6 +138,14 @@ func (s *Server) Take(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// Fund swagger:route PUT /fund Fund
+//
+// Add points to player.
+//
+// Responses:
+//    200: rsBalanceChanged
+//    404: errPlayerTournamentNotFound
+//    500: errInternalError
 func (s *Server) Fund(w http.ResponseWriter, r *http.Request) {
 	playerId := r.URL.Query()["player_id"][0]
 	points := r.URL.Query()["points"][0]
@@ -134,6 +174,14 @@ func (s *Server) Fund(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// AnnounceTournament swagger:route POST /announce_tournament AnnounceTournament
+//
+// Announce a new tournament.
+//
+// Responses:
+//    201: rsCreated
+//    404: errPlayerTournamentNotFound
+//    500: errInternalError
 func (s *Server) AnnounceTournament(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query()["name"][0]
 	deposit := r.URL.Query()["deposit"][0]
@@ -152,6 +200,16 @@ func (s *Server) AnnounceTournament(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tId)
 }
 
+// JoinTournament swagger:route PUT /join_tournament JoinTournament
+//
+// Join tournament with backers.
+//
+// Responses:
+//    200: rsPlayerInTournament
+//    402: errInsufficientBalance
+//    409: errPlayerAlreadyInTournament
+//    404: errPlayerTournamentNotFound
+//    500: errInternalError
 func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 	tournamentId := r.URL.Query()["tournament_id"][0]
 	playerId := r.URL.Query()["player_id"][0]
@@ -192,10 +250,6 @@ func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusPaymentRequired)
 		}
 
-		if err.Error() == ErrBackerIsNotInTournament {
-			w.WriteHeader(http.StatusUnauthorized)
-		}
-
 		if err.Error() == ErrPlayerAlreadyInTournament {
 			w.WriteHeader(http.StatusConflict)
 		}
@@ -204,7 +258,14 @@ func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
+// UpdatePrize swagger:route PUT /update_prizes UpdatePrize
+//
+// Updates player's prize.
+//
+// Responses:
+//    200: rsPlayerInTournament
+//    500: errInternalError
+func (s *Server) UpdatePrize(w http.ResponseWriter, r *http.Request) {
 	tournamentId := r.URL.Query()["tournament_id"][0]
 	playerId := r.URL.Query()["player_id"][0]
 	prize := r.URL.Query()["prize"][0]
@@ -225,7 +286,7 @@ func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	err = s.logic.UpdatePrizes(tid, player, pr)
+	err = s.logic.UpdatePrize(tid, player, pr)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -233,8 +294,18 @@ func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// ResultTournament swagger:route GET /result_tournament/{tId} ResultTournament
+//
+// Get results of tournament.
+//
+// Responses:
+//    200: rsResultTournament
+//    404: errPlayerTournamentNotFound
+//    500: errInternalError
 func (s *Server) ResultTournament(w http.ResponseWriter, r *http.Request) {
-	tournamentId := r.URL.Query()["tournament_id"][0]
+	vars := mux.Vars(r)
+	tournamentId := vars["tId"]
+
 	tid, err := strconv.ParseInt(tournamentId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -254,8 +325,17 @@ func (s *Server) ResultTournament(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tr)
 }
 
+// Balance swagger:route GET /balance/{pId}  Balance
+//
+// Returns player's balance
+//
+// Responses:
+//    200: rsBalance
+//    404: errPlayerTournamentNotFound
+//    500: errInternalError
 func (s *Server) Balance(w http.ResponseWriter, r *http.Request) {
-	playerId := r.URL.Query()["player_id"][0]
+	vars := mux.Vars(r)
+	playerId := vars["pId"]
 
 	pid, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
@@ -276,6 +356,12 @@ func (s *Server) Balance(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pb)
 }
 
+// Rest swagger:route GET /reset Reset
+// Resets database
+//
+// Responses:
+//    200: rsDbReset
+//    500: errInternalError
 func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
 	err := s.logic.Reset()
 	if err != nil {

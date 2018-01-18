@@ -432,12 +432,12 @@ func TestLogic_ResultTournament(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = l.UpdatePrizes(tId, pId, 50)
+	err = l.UpdatePrize(tId, pId, 50)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = l.UpdatePrizes(tId, pbId, 50)
+	err = l.UpdatePrize(tId, pbId, 50)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -451,7 +451,7 @@ func TestLogic_ResultTournament(t *testing.T) {
 	assert.Equal(t, 2, len(tr.Winners))
 }
 
-func TestLogic_UpdatePrizes(t *testing.T) {
+func TestLogic_UpdatePrize(t *testing.T) {
 	ds, err := data.ConnectToTestBase()
 	if err != nil {
 		t.Fatal(err)
@@ -482,7 +482,7 @@ func TestLogic_UpdatePrizes(t *testing.T) {
 
 	prize := 100
 
-	err = l.UpdatePrizes(tId, pId, prize)
+	err = l.UpdatePrize(tId, pId, prize)
 	if err != nil {
 		t.Fatal(err)
 	}

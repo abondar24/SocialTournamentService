@@ -19,19 +19,40 @@ type TournamentPlayer struct {
 	Prize        int   `json:"prize"`
 }
 
+// Results of the tournament
+//
+// swagger:model TournamentResults
 type TournamentResults struct {
-	TournamentId int64         `json:"tournament_id"`
-	Winners      []PlayerPrize `json:"winners"`
+	// The id of the tournament.
+	//
+	// required: true
+	//
+	TournamentId int64 `json:"tournament_id"`
+
+	// The list Of winners.
+	Winners []PlayerPrize `json:"winners"`
 }
 
+// Prize of the player
+//
+// swagger:model PlayerPrize
 type PlayerPrize struct {
+	// The id of the player.
 	PlayerId int64 `json:"player_id"`
-	Prize    int   `json:"prize"`
+
+	// Value of the prize.
+	Prize int `json:"prize"`
 }
 
+// Balance of the player
+//
+// swagger:model PlayerBalance
 type PlayerBalance struct {
+	// The id of the player
 	PlayerId int64 `json:"player_id"`
-	Balance    int   `json:"balance"`
+
+	// The balance of the player.
+	Balance int `json:"balance"`
 }
 
 type Backer struct {

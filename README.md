@@ -9,6 +9,7 @@ I wanted to show the following stuff:
  - gorilla mux and parameters
  - deploying Go app in Docker
  - docker-compose usage
+ - generating Swagger-based api description
 
 # Idea
 
@@ -25,115 +26,33 @@ In such case they get the money back + % of prize equal to
 The service implemented as REST API and stores data in relational database
 You can get the idea of database structure if you look at db.sql file
 
-REST API has the following set of methods
+REST API can be seen in Swagger UI.
 
-- Charge player
-```yaml
-GET /take?player_id=P1&points=300
-Takes points from player's balance
-Method returns the following response codes:
-    200 – charging completed
-    404 – player not found
-    402 - not enough points to charge
-    500 – internal error
+You can find API specification
 
-```
+- Locally:
 
-- Add points to player
-```yaml
-Ads points to player's balance
-GET /fund?player_id=P2&points=300
-Method returns the following response codes:
-    200 – points added
-    404 – player not found
-    500 – internal error
-```
-
-- Create a new player
-```yaml
-Creates a new player
-GET /add_player?name=Alex&points=300
-Method returns the following response codes:
-    201 – player created
-    500 – internal error
-```
-
-- Create a new tournament
-```yaml
-Creates a new tournament
-GET /announce_tournament?name=1&deposit=1000
-Method returns the following response codes:
-    201 – tournament created
-    500 – internal error
-```
-
-- Add player to tournament and add his backers 
-```yaml
-Adds a new player to the tournament
-GET /join_tournament?tournament_id=1&player_id=P1&backer_id=P2&backer_id=P3
-Method returns the following response codes:
-    200 – player added 
-    401 – backer doesn't take part in the tournament
-    402 – player doesn't have enough points
-    409 – player is already taking part in the tournament
-    404 – player/backer/tournament not found
-    500 – internal error
-
-backer_id is optional
-```
-
-- Update prizes
-```yaml
-Updates player's prize
-GET /update_prizes?tournament_id=1&player_id=P1&prize=500
-Method returns the following response codes:
-    200 – prize updated
-    500 – internal error
-```
-
-- Result tournament
-```yaml
-Returns results of the tournament
-POST /result_tournament?tournament_id=1
-Method returns the following response:
-    {"tournamentId": "1", "winners": [{"playerId": "P1", "prize": 500}]}
-Method returns the following response codes:
-    404 – player/backer/tournament not found
-    500 – internal error
-```
-
-- Balance
-```yaml
-Returns player's balance
-GET /balance?player_id=1
-Method returns the following response:
-    {"playerId": "P1", "balance": 456}
-Method returns the following response codes:
-    404 – player not found
-    500 – internal error
-```
-
-- Reset
-```yaml
-Clears data from the database
-GET /reset
-
-Method returns the following response codes:
-    200 – database is reseted successfully 
-    500 – internal error
-```
+- On SwaggerHub:
+https://swaggerhub.com/apis/abondar/SocialTournamentService/1.0.0
 
 # Install and run
 
-- To build a project and use it on your own machine run make install and run ./main (in such case change database hostname from 'db')
-- To run tests you should have a MySqlServer up and running on localhost
-
-- To run in docker via docker compose:
+1) To build a project and use it on your own machine run make install and run ./main (in such case change database hostname from 'db')
+2) To run tests you should have a MySqlServer up and running on localhost
+3) To run in docker via docker compose:
   ```yaml
    docker-compose build
    docker-compose up -d
   ```
-- Create database from db.sql file
+4) Create database from db.sql file
  
+# Generate Swagger API reference
+```yaml
+  In api package dir
+    
+  swagger generate spec -o ./swagger.json
+  swagger validate swagger.json
+```
+
 # TODO
 - Write a frontend using Vue.JS + Node.js

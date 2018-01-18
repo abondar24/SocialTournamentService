@@ -1,0 +1,556 @@
+{
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "contact": {
+      "name": "Alex Bondar",
+      "email": "abondar1992@gmail.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    },
+    "version": "0.0.1",
+    "title": "SocialTournamentService API"
+  },
+  "host": "localhost:8080",
+  "basePath": "/v2",
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Test server is up.",
+        "operationId": "Index",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsUp"
+          }
+        }
+      }
+    },
+    "/add_player": {
+      "post": {
+        "summary": "Add a new player.",
+        "operationId": "AddPlayer",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Name",
+            "description": "The name of the player.",
+            "name": "name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Points",
+            "description": "Points of the player.",
+            "name": "points",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/rsCreated"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/announce_tournament": {
+      "post": {
+        "summary": "Announce a new tournament.",
+        "operationId": "AnnounceTournament",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Name",
+            "description": "The name of the tournament.",
+            "name": "name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Deposit",
+            "description": "Minimum number of points to take part in tournament.",
+            "name": "deposit",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/rsCreated"
+          },
+          "404": {
+            "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/balance/{pId}": {
+      "get": {
+        "description": "Returns player's balance",
+        "operationId": "Balance",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Id",
+            "description": "Id of the player.",
+            "name": "pId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsBalance"
+          },
+          "404": {
+            "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/fund": {
+      "put": {
+        "summary": "Add points to player.",
+        "operationId": "Fund",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Id",
+            "description": "Id of the player.",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Points",
+            "description": "Points of the player.",
+            "name": "points",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsBalanceChanged"
+          },
+          "404": {
+            "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/join_tournament": {
+      "put": {
+        "summary": "Join tournament with backers.",
+        "operationId": "JoinTournament",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "TournamentId",
+            "description": "The id of the tournament.",
+            "name": "tournament_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "PlayerId",
+            "description": "The id of the player.",
+            "name": "player_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "BackerId",
+            "description": "Id of players backer(can'be several backers)",
+            "name": "backer_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsPlayerInTournament"
+          },
+          "402": {
+            "$ref": "#/responses/errInsufficientBalance"
+          },
+          "404": {
+            "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "409": {
+            "$ref": "#/responses/errPlayerAlreadyInTournament"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/reset": {
+      "get": {
+        "description": "Resets database",
+        "operationId": "Reset",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsDbReset"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/result_tournament/{tId}": {
+      "get": {
+        "summary": "Get results of tournament.",
+        "operationId": "ResultTournament",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Id",
+            "description": "Id of the tournament.",
+            "name": "tId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsResultTournament"
+          },
+          "404": {
+            "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/take": {
+      "put": {
+        "summary": "Charge a player player.",
+        "operationId": "Take",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Id",
+            "description": "Id of the player.",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Points",
+            "description": "Points of the player.",
+            "name": "points",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsBalanceChanged"
+          },
+          "402": {
+            "$ref": "#/responses/errInsufficientBalance"
+          },
+          "404": {
+            "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/update_prizes": {
+      "put": {
+        "summary": "Updates player's prize.",
+        "operationId": "UpdatePrize",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "TournamentId",
+            "description": "The id of the tournament.",
+            "name": "tournament_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "PlayerId",
+            "description": "The id of the player.",
+            "name": "player_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Prize",
+            "description": "Value of the prize.",
+            "name": "prize",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsPlayerInTournament"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PlayerBalance": {
+      "description": "Balance of the player",
+      "type": "object",
+      "properties": {
+        "balance": {
+          "description": "The balance of the player.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Balance"
+        },
+        "player_id": {
+          "description": "The id of the player",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PlayerId"
+        }
+      },
+      "x-go-package": "github.com/abondar24/SocialTournamentService/data"
+    },
+    "PlayerPrize": {
+      "description": "Prize of the player",
+      "type": "object",
+      "properties": {
+        "player_id": {
+          "description": "The id of the player.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PlayerId"
+        },
+        "prize": {
+          "description": "Value of the prize.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Prize"
+        }
+      },
+      "x-go-package": "github.com/abondar24/SocialTournamentService/data"
+    },
+    "TournamentResults": {
+      "description": "Results of the tournament",
+      "type": "object",
+      "required": [
+        "tournament_id"
+      ],
+      "properties": {
+        "tournament_id": {
+          "description": "The id of the tournament.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TournamentId"
+        },
+        "winners": {
+          "description": "The list Of winners.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PlayerPrize"
+          },
+          "x-go-name": "Winners"
+        }
+      },
+      "x-go-package": "github.com/abondar24/SocialTournamentService/data"
+    }
+  },
+  "responses": {
+    "errInsufficientBalance": {
+      "description": "Not enough points",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"Not enough points to join tournament\"",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "errInternalError": {
+      "description": "Internal error",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"Internal error on the server\"",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "errPlayerAlreadyInTournament": {
+      "description": "Player is already participating in tournament",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"Player is already participating in tournament\"",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "errPlayerTournamentNotFound": {
+      "description": "Resource not found",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"Player or Tournament not found in database\"",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rsBalance": {
+      "description": "Player's balance results",
+      "schema": {
+        "$ref": "#/definitions/PlayerBalance"
+      }
+    },
+    "rsBalanceChanged": {
+      "description": "Balance changed",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"Player's points added or removed\"",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rsCreated": {
+      "description": "Resource created",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"Player or tournament has been added\"",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rsDbReset": {
+      "description": "Database is reset",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"database is reset successfully\"",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rsPlayerInTournament": {
+      "description": "Prize updated",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"Player's prize has been updated\"",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rsResultTournament": {
+      "description": "Tournament results",
+      "schema": {
+        "$ref": "#/definitions/TournamentResults"
+      }
+    },
+    "rsUp": {
+      "description": "Server up",
+      "schema": {
+        "type": "object",
+        "required": [
+          "Message"
+        ],
+        "properties": {
+          "Message": {
+            "description": "\"Server is running\"",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

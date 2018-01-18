@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"github.com/abondar24/SocialTournamentService/api"
+	"github.com/abondar24/SocialTournamentService/blogic"
 	"github.com/abondar24/SocialTournamentService/data"
 	"log"
-	"github.com/abondar24/SocialTournamentService/blogic"
-	"fmt"
 )
 
+//go:generate swagger generate spec model
 func main() {
 	ds, err := data.ConnectToBase()
 	if err != nil {
@@ -15,7 +16,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	l:= blogic.NewLogic(ds)
+	l := blogic.NewLogic(ds)
 	srv := api.NewServer(l)
 	srv.RunRestServer()
 

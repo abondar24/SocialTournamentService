@@ -307,7 +307,7 @@ func (l *Logic) ResultTournament(tournamentId int64) (*data.TournamentResults, e
 	return tr, err
 }
 
-func (l *Logic) UpdatePrizes(tournamentId int64, playerId int64, prize int) error {
+func (l *Logic) UpdatePrize(tournamentId int64, playerId int64, prize int) error {
 	tx, err := l.ds.BeginTx()
 	if err != nil {
 		log.Println(err.Error())
