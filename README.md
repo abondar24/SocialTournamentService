@@ -26,9 +26,7 @@ In such case they get the money back + % of prize equal to
 The service implemented as REST API and stores data in relational database
 You can get the idea of database structure if you look at db.sql file
 
-REST API can be seen in Swagger UI.
-
-You can find API specification on SwaggerHub:
+You can find REST API specification on SwaggerHub:
 https://swaggerhub.com/apis/abondar/SocialTournamentService/1.0.0
 
 # Install and run
