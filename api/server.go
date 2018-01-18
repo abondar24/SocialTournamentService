@@ -16,6 +16,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/abondar24/SocialTournamentService/blogic"
+	"github.com/go-openapi/loads"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -44,7 +45,6 @@ func NewServer(logic *blogic.Logic) *Server {
 }
 
 func (s *Server) RunRestServer() {
-
 	s.router.HandleFunc("/v2/", s.Index)
 	s.router.HandleFunc("/v2/add_player", s.AddPlayer).Methods("POST")
 	s.router.HandleFunc("/v2/take", s.Take).Methods("PUT")
