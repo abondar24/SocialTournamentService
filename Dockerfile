@@ -1,4 +1,4 @@
-FROM iron/go:dev
+FROM library/golang
 FROM quay.io/goswagger/swagger
 
 WORKDIR /app
