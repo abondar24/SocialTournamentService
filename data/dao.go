@@ -353,8 +353,10 @@ func (ds *MySql) GetPlayerIdsByTournament(tournamentId int64, tx *sql.Tx) (*[]in
 }
 
 func (ds *MySql) GetPlayersByTournament(tournamentId int64, tx *sql.Tx) (*[]Player, error) {
-	query := fmt.Sprintf("SELECT * FROM player p WHERE p.id IN "+
-		"(SELECT player_id FROM tournament_player tp WHERE tp.tournament_id=%v) ORDER BY p.id ASC", tournamentId)
+	//alternative variant: SELECT * FROM player p WHERE p.id IN
+	// (SELECT player_id FROM tournament_player tp WHERE tp.tournament_id=%v) ORDER BY p.id ASC
+	query := fmt.Sprintf("SELECT p.id,p.name,p.points FROM player p JOIN tournament_player tp "+
+		"ON p.id=tp.player_id WHERE tp.tournament_id=%v", tournamentId)
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
