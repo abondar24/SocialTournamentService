@@ -133,6 +133,20 @@ type ResponseBalance struct {
 	Data data.PlayerBalance `json:"data"`
 }
 
+// Players in system
+// swagger:response rsPlayers
+type ResponsePlayers struct {
+	// in: body
+	Data []data.Player `json:"data"`
+}
+
+// Tournaments in system
+// swagger:response rsTournaments
+type ResponseTournaments struct {
+	// in: body
+	Data []data.Tournament `json:"data"`
+}
+
 // Database is reset
 // swagger:response rsDbReset
 type ResponseDatabaseReset struct {

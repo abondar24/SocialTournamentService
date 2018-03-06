@@ -81,7 +81,7 @@ type PlayerIdParam struct {
 	Id int64 `json:"pId"`
 }
 
-// swagger:parameters ResultTournament
+// swagger:parameters ResultTournament GetPlayersInTournament
 type TournamentIdParam struct {
 
 	// Id of the tournament.

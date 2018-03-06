@@ -50,10 +50,13 @@ func (s *Server) RunRestServer() {
 	s.router.HandleFunc("/v2/fund", s.Fund).Methods("PUT")
 	s.router.HandleFunc("/v2/announce_tournament", s.AnnounceTournament).Methods("POST")
 	s.router.HandleFunc("/v2/join_tournament", s.JoinTournament).Methods("PUT")
-	s.router.HandleFunc("/v2/result_tournament", s.ResultTournament).Methods("GET")
-	s.router.HandleFunc("/v2/balance", s.Balance).Methods("GET")
+	s.router.HandleFunc("/v2/result_tournament/{tId}", s.ResultTournament).Methods("GET")
+	s.router.HandleFunc("/v2/balance/{pId}", s.Balance).Methods("GET")
 	s.router.HandleFunc("/v2/reset", s.Reset).Methods("GET")
 	s.router.HandleFunc("/v2/update_prizes", s.UpdatePrize).Methods("PUT")
+	s.router.HandleFunc("/v2/get_players", s.GetPlayers).Methods("GET")
+	s.router.HandleFunc("/v2/get_tournaments", s.GetTournaments).Methods("GET")
+	s.router.HandleFunc("/v2/get_players_tournament/{tId}", s.GetPlayersInTournament).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8080", s.router))
 
@@ -368,6 +371,73 @@ func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+// AddPlayer swagger:route GET /get_players  GetPlayers
+//
+// Get all players.
+//
+// Responses:
+//    200: rsPlayers
+//    500: errInternalError
+func (s *Server) GetPlayers(w http.ResponseWriter, r *http.Request) {
+	players, err := s.logic.GetAllPlayers()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(players)
+}
+
+// GetTournaments swagger:route GET /get_tournaments  GetTournaments
+//
+// Get all tournaments.
+//
+// Responses:
+//    200: rsTournaments
+//    500: errInternalError
+func (s *Server) GetTournaments(w http.ResponseWriter, r *http.Request) {
+	tournaments, err := s.logic.GetAllTournaments()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(tournaments)
+}
+
+// GetPlayersInTournament swagger:route GET /get_players_tournament/{tId} GetPlayersInTournament
+//
+// Get players taking part in tournament.
+//
+// Responses:
+//    200: rsPlayers
+//    404: errPlayerTournamentNotFound
+//    500: errInternalError
+func (s *Server) GetPlayersInTournament(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tournamentId := vars["tId"]
+
+	tid, err := strconv.ParseInt(tournamentId, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	players, err := s.logic.GetPlayersTournament(tid)
+	if err != nil {
+		if err.Error() == ErrInternalError {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		if err.Error() == ErrTournamentNotFound {
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}
+
+	json.NewEncoder(w).Encode(players)
 }
 
 func (s *Server) convertToInt64(strArray []string) (*[]int64, error) {

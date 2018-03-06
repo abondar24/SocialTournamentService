@@ -346,6 +346,75 @@ func (l *Logic) UpdatePrize(tournamentId int64, playerId int64, prize int) error
 
 }
 
+func (l *Logic) GetAllPlayers() (*[]data.Player, error) {
+
+	tx, err := l.ds.BeginTx()
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	defer tx.Rollback()
+
+	players, err := l.ds.GetAllPlayers(tx)
+	if err != nil {
+		log.Println(err.Error())
+		err = errors.New(ErrInternalError)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	return players, err
+}
+
+func (l *Logic) GetAllTournaments() (*[]data.Tournament, error) {
+
+	tx, err := l.ds.BeginTx()
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	defer tx.Rollback()
+
+	tournaments, err := l.ds.GetAllTournamets(tx)
+	if err != nil {
+		log.Println(err.Error())
+		err = errors.New(ErrInternalError)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	return tournaments, err
+}
+
+func (l *Logic) GetPlayersTournament(tournamentId int64) (*[]data.Player, error) {
+
+	tx, err := l.ds.BeginTx()
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	defer tx.Rollback()
+
+	players, err := l.ds.GetPlayersByTournament(tournamentId, tx)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, errors.New(ErrInternalError)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	return players, err
+}
+
 func (l *Logic) Reset() error {
 	err := l.ds.ClearDB()
 	if err != nil {
@@ -447,7 +516,7 @@ func (l *Logic) checkPlayers(players *[]int64, tx *sql.Tx) error {
 }
 
 func (l *Logic) checkBackersInTournament(tournamentId int64, backers *[]int64, tx *sql.Tx) (*[]int64, error) {
-	players, err := l.ds.GetPlayersByTournament(tournamentId, tx)
+	players, err := l.ds.GetPlayerIdsByTournament(tournamentId, tx)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, errors.New(ErrInternalError)

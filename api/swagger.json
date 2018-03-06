@@ -16,8 +16,7 @@
       "name": "MIT",
       "url": "http://opensource.org/licenses/MIT"
     },
-    "version": "1.0.0",
-    "title": "SocialTournamentService API"
+    "version": "1.0.0"
   },
   "host": "localhost:8080",
   "basePath": "/v2",
@@ -159,6 +158,62 @@
           },
           "404": {
             "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/get_players": {
+      "get": {
+        "summary": "Get all players.",
+        "operationId": "GetPlayers",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsPlayers"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/get_players_tournament/{tId}": {
+      "get": {
+        "summary": "Get players taking part in tournament.",
+        "operationId": "GetPlayersInTournament",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Id",
+            "description": "Id of the tournament.",
+            "name": "tId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsPlayers"
+          },
+          "404": {
+            "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/get_tournaments": {
+      "get": {
+        "summary": "Get all tournaments.",
+        "operationId": "GetTournaments",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsTournaments"
           },
           "500": {
             "$ref": "#/responses/errInternalError"
@@ -341,6 +396,30 @@
     }
   },
   "definitions": {
+    "Player": {
+      "description": "Player of the service",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Player's id.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id"
+        },
+        "name": {
+          "description": "Player's name.",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "points": {
+          "description": "Player's points.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Points"
+        }
+      },
+      "x-go-package": "github.com/abondar24/SocialTournamentService/data"
+    },
     "PlayerBalance": {
       "description": "Balance of the player",
       "type": "object",
@@ -375,6 +454,30 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "Prize"
+        }
+      },
+      "x-go-package": "github.com/abondar24/SocialTournamentService/data"
+    },
+    "Tournament": {
+      "description": "Tournament on the service",
+      "type": "object",
+      "properties": {
+        "deposit": {
+          "description": "Tournaments's deposit.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Deposit"
+        },
+        "id": {
+          "description": "Tournaments's id.",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Id"
+        },
+        "name": {
+          "description": "Tournaments's name.",
+          "type": "string",
+          "x-go-name": "Name"
         }
       },
       "x-go-package": "github.com/abondar24/SocialTournamentService/data"
@@ -531,10 +634,28 @@
         }
       }
     },
+    "rsPlayers": {
+      "description": "Players in system",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Player"
+        }
+      }
+    },
     "rsResultTournament": {
       "description": "Tournament results",
       "schema": {
         "$ref": "#/definitions/TournamentResults"
+      }
+    },
+    "rsTournaments": {
+      "description": "Tournaments in system",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Tournament"
+        }
       }
     },
     "rsUp": {

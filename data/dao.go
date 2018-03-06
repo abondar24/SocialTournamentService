@@ -44,6 +44,29 @@ func (ds *MySql) BeginTx() (*sql.Tx, error) {
 	return tx, err
 }
 
+func (ds *MySql) GetAllPlayers(tx *sql.Tx) (*[]Player, error) {
+	query := fmt.Sprintf("SELECT * FROM player")
+	stmt, err := tx.Prepare(query)
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	players := make([]Player, 0)
+
+	for rows.Next() {
+		b := Player{}
+		rows.Scan(&b.Id, &b.Name, &b.Points)
+		players = append(players, b)
+	}
+
+	return &players, err
+}
+
 func (ds *MySql) GetPlayerById(playerId int64, tx *sql.Tx) (*Player, error) {
 	query := fmt.Sprintf("SELECT * FROM player where id=%v", playerId)
 	stmt, err := tx.Prepare(query)
@@ -230,6 +253,29 @@ func (ds *MySql) CreateNewTournament(t *Tournament, tx *sql.Tx) (int64, error) {
 	return int64(id), err
 }
 
+func (ds *MySql) GetAllTournamets(tx *sql.Tx) (*[]Tournament, error) {
+	query := fmt.Sprintf("SELECT * FROM tournament")
+	stmt, err := tx.Prepare(query)
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	tournaments := make([]Tournament, 0)
+
+	for rows.Next() {
+		t := Tournament{}
+		rows.Scan(&t.Id, &t.Name, &t.Deposit)
+		tournaments = append(tournaments, t)
+	}
+
+	return &tournaments, err
+}
+
 func (ds *MySql) GetTournamentById(tournamentId int64, tx *sql.Tx) (*Tournament, error) {
 	query := fmt.Sprintf("SELECT * FROM tournament where id=%v", tournamentId)
 	stmt, err := tx.Prepare(query)
@@ -280,7 +326,7 @@ func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer, tx *sql.Tx) (int64,
 
 }
 
-func (ds *MySql) GetPlayersByTournament(tournamentId int64, tx *sql.Tx) (*[]int64, error) {
+func (ds *MySql) GetPlayerIdsByTournament(tournamentId int64, tx *sql.Tx) (*[]int64, error) {
 	query := fmt.Sprintf("SELECT player_id FROM tournament_player where tournament_id=%v", tournamentId)
 	stmt, err := tx.Prepare(query)
 
@@ -301,6 +347,31 @@ func (ds *MySql) GetPlayersByTournament(tournamentId int64, tx *sql.Tx) (*[]int6
 	for rows.Next() {
 		rows.Scan(&id)
 		players = append(players, id)
+	}
+
+	return &players, err
+}
+
+func (ds *MySql) GetPlayersByTournament(tournamentId int64, tx *sql.Tx) (*[]Player, error) {
+	query := fmt.Sprintf("SELECT * FROM player p WHERE p.id IN "+
+		"(SELECT player_id FROM tournament_player tp WHERE tp.tournament_id=%v) ORDER BY p.id ASC", tournamentId)
+	stmt, err := tx.Prepare(query)
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+
+	players := make([]Player, 0)
+
+	for rows.Next() {
+		p := Player{}
+		rows.Scan(&p.Id, &p.Name, &p.Points)
+		players = append(players, p)
 	}
 
 	return &players, err

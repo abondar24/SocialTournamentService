@@ -1,15 +1,32 @@
 package data
 
+// Player of the service
+//
+// swagger:model Player
 type Player struct {
-	Id     int64  `json:"id"`
-	Name   string `json:"name"`
-	Points int    `json:"points"`
+	// Player's id.
+	Id int64 `json:"id"`
+
+	// Player's name.
+	Name string `json:"name"`
+
+	// Player's points.
+	Points int `json:"points"`
 }
 
+// Tournament on the service
+//
+// swagger:model Tournament
 type Tournament struct {
-	Id      int64  `json:"id"`
-	Name    string `json:"name"`
-	Deposit int    `json:"deposit"`
+
+	// Tournaments's id.
+	Id int64 `json:"id"`
+
+	// Tournaments's name.
+	Name string `json:"name"`
+
+	// Tournaments's deposit.
+	Deposit int `json:"deposit"`
 }
 
 type TournamentPlayer struct {
