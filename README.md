@@ -51,5 +51,5 @@ Or you can access it locally by http://localhost:8024/docs
   swagger generate spec -o ./swagger.json
   swagger validate swagger.json
 ```
-# TODO
-- Write a frontend using Vue.JS + Node.js
+# Frontend
+Frontend documentation [here](sts_frontend/README.md) 
