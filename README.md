@@ -52,4 +52,4 @@ Or you can access it locally by http://localhost:8024/docs
   swagger validate swagger.json
 ```
 # Frontend
-Frontend documentation [here](sts_frontend/README.md) 
+Frontend documentation [here](admin_frontend/README.md) 

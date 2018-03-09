@@ -13,3 +13,6 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 .idea
+admin_frontend/node_modules
+admin_frontend/package-lock.json
+admin_frontend/dist
