@@ -19,7 +19,7 @@ router.get("/status",function (req, res, next) {
 
 
 router.post("/announce_tournament",function (req, res, next) {
-    var options = {
+    let options = {
         qs: {
             name: req.query.name,
             deposit: parseInt(req.query.deposit)
@@ -102,7 +102,7 @@ router.get("/result_tournament/:id",function (req, res, next) {
 });
 
 router.put("/update_prizes",function (req, res, next) {
-    var options = {
+    let options = {
         qs: {
             tournament_id: parseInt(req.query.tournament_id),
             player_id: parseInt(req.query.player_id),
