@@ -1,0 +1,21 @@
+<div class="main">
+    <div>
+
+        <b-modal id="modal1" title="Something went wrong" v-if="!serverStatusOk">
+            <p class="my-4">{{msg}}</p>
+            <p class="my-4">{{statusCode}}</p>
+
+        </b-modal>
+    </div>
+
+    <div>
+        <b-tab title="Players" active>
+            <br>Players data
+        </b-tab>
+        <b-tab title="Tournaments" active>
+            <br>Tournament data
+        </b-tab>
+    </div>
+
+
+</div>
