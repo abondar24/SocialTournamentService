@@ -57,7 +57,6 @@ export default {
 					}
 
 				}, error => {
-					console.error('sersver error', error)
 					this.msg = error.statusText || error.data;
 					this.statusCode = error.statusCode || error.status;
 					this.serverStatusOk = false;
@@ -67,7 +66,6 @@ export default {
 	},
 	created: function () {
 			this.status();
-			console.log('THIS_HOSTNAME', this.$hostname)
 	}
 }
 </script>
