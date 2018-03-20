@@ -6,19 +6,17 @@
 				<p class="my-4">{{statusCode}}</p>
 			</b-modal>
 		</div>
-		<b-content>
+		<div>
 			<b-btn @click="status">test get status</b-btn>
-		</b-content>
+		</div>
 		<!-- Make sure to wrap b-tab in b-tabs -->
 		<b-tabs> 
-
 			<b-tab title="Players" active>
 					<br>Players data
 			</b-tab>
 			<b-tab title="Tournaments">
 					<br>Tournament data
 			</b-tab>
-
 		</b-tabs>
 	</div>
 </template>
