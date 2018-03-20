@@ -1,7 +1,7 @@
 <template src="../templates/main.html"></template>
 
 <script>
-export default {
+    export default {
   name: 'Main',
   props: {
     msg: String,
