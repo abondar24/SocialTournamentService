@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
-var request = require('request');
+let express = require('express');
+let router = express.Router();
+let request = require('request');
 
-var baseURI = "http://localhost:8080/v2";
+let baseURI = "http://localhost:8080/v2";
 
 
 router.get("/status",function (req, res, next) {

@@ -1,46 +1,18 @@
-<template>
-	<div class="main">
-		<div>
-			<b-modal id="modal1" title="Something went wrong" v-model="errorModal">
-				<pre class="my-4">{{msg}}</pre>
-				<p class="my-4">{{statusCode}}</p>
-			</b-modal>
-		</div>
-		<div>
-			<b-btn @click="status">test get status</b-btn>
-		</div>
-		<!-- Make sure to wrap b-tab in b-tabs -->
-		<b-tabs> 
-			<b-tab title="Players" active>
-					<br>Players data
-			</b-tab>
-			<b-tab title="Tournaments">
-					<br>Tournament data
-			</b-tab>
-		</b-tabs>
-	</div>
+<template src="../templates/main.html">
+
 </template>
 
 <script>
 export default {
   name: 'Main',
-	/** [Vue warn]: Avoid mutating a prop directly since the value will be overwritten 
+	/** [Vue warn]: Avoid mutating a prop directly since the value will be overwritten
 	whenever the parent component re-renders.
 	Instead, use a data or computed property based on the prop's value. */
-  // props: { 
-  //   msg: String,
-  //   statusCode: Number,
-  //   serverStatusOk: {
-  //       default: true,
-  //       type: Boolean
-  //   },
-  // },
 	data() {
 		return {
 			errorModal: false,
 			msg: '',
 			statusCode: null,
-			serverStatusOk: false
 		}
 	},
 	methods: {
@@ -50,17 +22,11 @@ export default {
 					console.log(response);
 					this.msg = response.data.msg;
 					this.statusCode = response.data.code;
-					this.errorModal = false;
-					if (this.statusCode!==200){
-						this.serverStatusOk = false;
-						this.errorModal = true;
-					}
-
+					this.errorModal = this.statusCode !== 200;
 				}, error => {
-					this.msg = error.statusText || error.data;
-					this.statusCode = error.statusCode || error.status;
-					this.serverStatusOk = false;
-					this.errorModal = true;
+                    this.msg = error.statusText || error.data;
+                    this.statusCode = error.statusCode || error.status;
+                    this.errorModal = true;
 				});
 		},
 	},
@@ -70,5 +36,5 @@ export default {
 }
 </script>
 
-<style src="../styles/main.css">
+<style scoped src="../styles/main.css">
 </style>

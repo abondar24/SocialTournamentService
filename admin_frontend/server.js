@@ -1,13 +1,13 @@
-var express = require('express');
-var serveStatic = require('serve-static');
-var route = require('./routes/route');
-var bodyParser = require('body-parser');
-var logger = require('morgan');
+let express = require('express');
+let serveStatic = require('serve-static');
+let route = require('./routes/route');
+let bodyParser = require('body-parser');
+let logger = require('morgan');
 
 app = express();
 
 app.use(serveStatic(__dirname + "/dist"));
-var port = process.env.PORT || 8217;
+let port = process.env.PORT || 8217;
 app.listen(port);
 
 app.set('route',__dirname+'/routes');

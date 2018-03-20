@@ -1,0 +1,21 @@
+<div class="main">
+
+    <div id="err" v-if="errorModal">
+        <pre class="my-4">Something went wrong</pre>
+        <pre class="my-4">Message: {{msg}}</pre>
+        <p class="my-4">Status: {{statusCode}}</p>
+
+    </div>
+
+    <div v-if="!errorModal">
+
+    <b-tabs>
+        <b-tab title="Players" active>
+            <br>Players data
+        </b-tab>
+        <b-tab title="Tournaments">
+            <br>Tournament data
+        </b-tab>
+    </b-tabs>
+    </div>
+</div>
