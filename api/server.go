@@ -386,7 +386,7 @@ func (s *Server) GetPlayers(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 
 	json.NewEncoder(w).Encode(players)
 }
@@ -404,7 +404,7 @@ func (s *Server) GetTournaments(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 
 	json.NewEncoder(w).Encode(tournaments)
 }
@@ -437,6 +437,7 @@ func (s *Server) GetPlayersInTournament(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(players)
 }
 
