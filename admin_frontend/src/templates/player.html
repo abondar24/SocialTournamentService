@@ -1,0 +1,13 @@
+<div>
+    <b-alert variant="danger" :show="errorAlert">
+        <pre class="my-4">Something went wrong</pre>
+        <pre class="my-4">Message: {{errorMsg}}</pre>
+        <p class="my-4">Status: {{statusCode}}</p>
+    </b-alert>
+
+    <div v-if="!errorAlert">
+        <b-table striped hover responsive :items="players" :fields="fields">
+
+        </b-table>
+    </div>
+</div>

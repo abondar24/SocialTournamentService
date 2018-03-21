@@ -8,7 +8,7 @@ import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
 export default {
   name: 'app',
   components: {
-    Main
+      Main,
   },
 }
 </script>

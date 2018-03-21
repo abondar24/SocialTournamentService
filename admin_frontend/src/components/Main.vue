@@ -3,8 +3,14 @@
 </template>
 
 <script>
+    import Player from './Player.vue'
+    import Tournament from './Tournament.vue'
 export default {
   name: 'Main',
+    components:{
+      Player,
+        Tournament
+    },
 	/** [Vue warn]: Avoid mutating a prop directly since the value will be overwritten
 	whenever the parent component re-renders.
 	Instead, use a data or computed property based on the prop's value. */
@@ -19,7 +25,6 @@ export default {
 		status() {
 			this.$http.get(this.$hostname+'/status')
 				.then(response => {
-					console.log(response);
 					this.msg = response.data.msg;
 					this.statusCode = response.data.code;
 					this.errorModal = this.statusCode !== 200;
