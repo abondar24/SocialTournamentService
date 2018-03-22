@@ -37,6 +37,9 @@
                 statusCode: null,
                 errorMsg: '',
                 errorAlert: false,
+                perPage: 7,
+                currentPage: 1,
+                totalRows:0
             }
         },
         methods: {
@@ -44,6 +47,7 @@
                 this.$http.get(this.$hostname+'/get_players')
                     .then(response => {
                         this.players = response.data.msg;
+                        this.totalRows = this.players.length;
                         this.statusCode = response.data.code;
                         if (this.statusCode!==200){
                             this.errorMsg = response.data;

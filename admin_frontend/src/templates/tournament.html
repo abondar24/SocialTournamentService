@@ -6,6 +6,10 @@
     </b-alert>
 
     <div v-if="!errorAlert">
-        <b-table striped hover :items="tournaments"></b-table>
+        <b-col md="6" class="my-1">
+            <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
+        </b-col>
+        <b-table striped hover responsive :items="tournaments" :fields="fields"
+                 :per-page="perPage" :current-page="currentPage"></b-table>
     </div>
 </div>

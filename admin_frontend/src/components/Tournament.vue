@@ -12,6 +12,9 @@
                 statusCode: null,
                 errorMsg: '',
                 errorAlert: false,
+                perPage: 7,
+                currentPage: 1,
+                totalRows:0
             }
         },
         methods: {
@@ -20,6 +23,7 @@
                     .then(response => {
                         this.tournaments = response.data.msg;
                         this.statusCode = response.data.code;
+                        this.totalRows = this.players.length;
                         if (this.statusCode!==200){
                             this.errorMsg = response.data;
                             this.errorAlert = true;
