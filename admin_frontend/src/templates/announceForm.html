@@ -1,0 +1,32 @@
+
+<div>
+    <b-alert variant="danger" :show="errorAlert">
+        <pre class="my-4">Something went wrong</pre>
+        <pre class="my-4">Message: {{errorMsg}}</pre>
+        <p class="my-4">Status: {{statusCode}}</p>
+    </b-alert>
+    <div v-if="!errorAlert">
+    <b-form>
+        <b-form-group id="nameGroup"
+                      label="Tournament name:"
+                      label-for="nameInput">
+            <b-form-input id="nameInput"
+                          type="text"
+                          v-model="tournament.name"
+                          required
+                          placeholder="Enter name">
+            </b-form-input>
+        </b-form-group>
+        <b-form-group id="depositGroup"
+                      label="Tournament deposit:"
+                      label-for="depositInput">
+            <b-form-input id="depositInput"
+                          type="text"
+                          v-model="tournament.deposit"
+                          required
+                          placeholder="Enter deposit">
+            </b-form-input>
+        </b-form-group>
+        </div>
+    </b-form>
+</div>

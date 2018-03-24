@@ -3,8 +3,14 @@
 </template>
 
 <script>
+    import AnnounceForm from './AnnounceForm'
+    import EventBus from './event-bus';
     export default {
         name: "Tournament",
+        components:{
+            AnnounceForm
+        },
+
         data() {
             return {
 
@@ -14,7 +20,7 @@
                 errorAlert: false,
                 perPage: 7,
                 currentPage: 1,
-                totalRows:0
+                totalRows:0,
             }
         },
         methods: {
@@ -23,7 +29,7 @@
                     .then(response => {
                         this.tournaments = response.data.msg;
                         this.statusCode = response.data.code;
-                        this.totalRows = this.players.length;
+                        this.totalRows = this.tournaments.length;
                         if (this.statusCode!==200){
                             this.errorMsg = response.data;
                             this.errorAlert = true;
@@ -33,11 +39,28 @@
                         this.statusCode = error.statusCode || error.status;
                         this.errorAlert = true;
                     });
+            },
+            handleOK(){
+                EventBus.$emit('submit');
+            },
+            handleCancel(){
+                EventBus.$emit('reset');
+            },
+            updTournaments(newTournament){
+                console.log(newTournament)
+                this.tournaments.push(newTournament);
             }
         },
         created: function () {
             this.getPlayers();
+
+        },
+        mounted: function () {
+            EventBus.$on('announce',this.updTournaments);
         }
+
+
+
     }
 </script>
 
