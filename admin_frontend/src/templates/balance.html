@@ -1,0 +1,17 @@
+<div v-if="!errorAlert">
+    <b-form @submit="onSubmit" inline>
+
+        <label class="sr-only" for="idInput">UD</label>
+            <b-input id="idInput"
+                     class="mb-2 mr-sm-2 mb-sm-0"
+                          type="text"
+                          v-model="playerId"
+                          required
+                          placeholder="Enter ID">
+            </b-input>
+        <b-button type="submit" variant="success">Submit</b-button>
+    </b-form>
+    <div v-if="balance!==''">
+    <b-alert show variant="primary" dismissible>{{ balance }}</b-alert>
+    </div>
+    </div>

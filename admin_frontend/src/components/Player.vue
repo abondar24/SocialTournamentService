@@ -3,9 +3,13 @@
 </template>
 
 <script>
+    import Balance from './Balance.vue'
+    import EventBus from './event-bus';
     export default {
         name: "Player",
-
+    components:{
+            Balance
+    },
         data() {
             return {
                 // fields: {
@@ -39,7 +43,9 @@
                 errorAlert: false,
                 perPage: 7,
                 currentPage: 1,
-                totalRows:0
+                totalRows:0,
+                balance: false,
+                balanceError:false
             }
         },
         methods: {
@@ -58,11 +64,25 @@
                         this.statusCode = error.statusCode || error.status;
                         this.errorAlert = true;
                     });
+            },
+            openBalance(){
+                this.balance = true;
+            },
+            handleBalanceError(err){
+                this.balanceError = err.errorAlert;
+                this.statusCode = err.statusCode;
+                this.errorMsg = err.errorMsg;
             }
         },
         created: function () {
             this.getPlayers();
+
+        },
+        mounted: function () {
+            EventBus.$on('balanceError',this.handleBalanceError);
         }
+
+
     }
 </script>
 

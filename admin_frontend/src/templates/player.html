@@ -6,12 +6,30 @@
     </b-alert>
 
     <div v-if="!errorAlert">
-        <b-col md="6" class="my-1">
+        <b-alert variant="warning" :show="balanceError"  dismissible>
+            <pre class="my-4">Message: {{errorMsg}}</pre>
+            <p class="my-4">Status: {{statusCode}}</p>
+        </b-alert>
+        <b-row>
+        <b-col cols="1">
             <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
         </b-col>
+        <b-col cols="2">
+            <b-button size="md" variant="success" @click="openBalance">
+                Check balance
+            </b-button>
+        </b-col>
+        </b-row>
         <b-table striped hover responsive :items="players" :fields="fields"
                                           :per-page="perPage" :current-page="currentPage">
 
+
         </b-table>
+
+
+        <div v-if="balance">
+            <Balance/>
+        </div>
+
     </div>
 </div>

@@ -47,7 +47,6 @@
                 EventBus.$emit('reset');
             },
             updTournaments(newTournament){
-                console.log(newTournament)
                 this.tournaments.push(newTournament);
             }
         },
