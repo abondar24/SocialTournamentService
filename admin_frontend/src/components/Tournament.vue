@@ -54,7 +54,6 @@
             },
             showDetails(details){
                 this.$refs.td.title +=details.name;
-                console.log(this.$refs.td.title)
                 this.$refs.td.show();
                 EventBus.$emit('init',details.id);
             }

@@ -6,28 +6,31 @@
     </b-alert>
 
     <div v-if="!errorAlert">
-        <b-row>
-            <b-col cols="1">
+        <b-nav>
+            <b-nav-item>
             <b-pagination :total-rows="totalRows" :per-page="perPage"
                           v-model="currentPage" class="my-0"/>
-            </b-col>
 
-            <b-col cols="2">
+            </b-nav-item>
+            <b-nav-item>
         <b-button size="md" variant="success" v-b-modal.announceModal>
                 Announce new
             </b-button>
+            </b-nav-item>
 
-                <b-modal id="announceModal" title="Announce a tournament" @ok="handleOK" @cancel="handleCancel" >
-                    <AnnounceForm />
-                </b-modal>
 
-                <b-modal id="tournamentDetails" ref="td" title="Tournament details for "
-                         ok-only no-fade>
-                    <TournamentDetails />
-                </b-modal>
-            </b-col>
-        </b-row>
+        </b-nav>
             <b-table striped hover responsive :items="tournaments" :fields="fields"
-                 :per-page="perPage" :current-page="currentPage" @row-clicked="showDetails($event)"></b-table>
+                 :per-page="perPage" :current-page="currentPage"
+                     @row-clicked="showDetails($event)"></b-table>
+
+        <b-modal id="announceModal" title="Announce a tournament" @ok="handleOK" @cancel="handleCancel" >
+            <AnnounceForm />
+        </b-modal>
+
+        <b-modal id="tournamentDetails" ref="td" title="Tournament details for "
+                 ok-only no-fade>
+            <TournamentDetails />
+        </b-modal>
     </div>
 </div>

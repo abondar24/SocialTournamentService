@@ -35,10 +35,12 @@
                        } else {
                            EventBus.$emit('announce', this.tournament);
                        }
+                this.resetForm();
                    }, error => {
                        this.errorMsg = error.statusText || error.data;
                        this.statusCode = error.statusCode || error.status;
                        this.errorAlert = true;
+                this.resetForm();
                    });
 
 

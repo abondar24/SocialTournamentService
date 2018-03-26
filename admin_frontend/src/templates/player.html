@@ -10,16 +10,16 @@
             <pre class="my-4">Message: {{errorMsg}}</pre>
             <p class="my-4">Status: {{statusCode}}</p>
         </b-alert>
-        <b-row>
-        <b-col cols="1">
+        <b-nav>
+        <b-nav-item>
             <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
-        </b-col>
-        <b-col cols="2">
+        </b-nav-item>
+            <b-nav-item>
             <b-button size="md" variant="success" @click="openBalance">
                 Check balance
             </b-button>
-        </b-col>
-        </b-row>
+                </b-nav-item>
+        </b-nav>
         <b-table striped hover responsive :items="players" :fields="fields"
                                           :per-page="perPage" :current-page="currentPage">
 
