@@ -3,12 +3,14 @@
 </template>
 
 <script>
-    import AnnounceForm from './AnnounceForm'
+    import AnnounceForm from './AnnounceForm.vue'
+    import TournamentDetails from './TournamentDetails'
     import EventBus from './event-bus';
     export default {
         name: "Tournament",
         components:{
-            AnnounceForm
+            AnnounceForm,
+            TournamentDetails,
         },
 
         data() {
@@ -21,8 +23,9 @@
                 perPage: 7,
                 currentPage: 1,
                 totalRows:0,
-            }
-        },
+                }
+
+            },
         methods: {
             getPlayers(){
                 this.$http.get(this.$hostname+'/get_tournaments')
@@ -48,6 +51,12 @@
             },
             updTournaments(newTournament){
                 this.tournaments.push(newTournament);
+            },
+            showDetails(details){
+                this.$refs.td.title +=details.name;
+                console.log(this.$refs.td.title)
+                this.$refs.td.show();
+                EventBus.$emit('init',details.id);
             }
         },
         created: function () {

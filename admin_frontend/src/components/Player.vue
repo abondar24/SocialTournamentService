@@ -12,17 +12,6 @@
     },
         data() {
             return {
-                // fields: {
-                //    id: {
-                //         label: 'Id'
-                //     },
-                //     name:{
-                //         label: 'Name'
-                //     },
-                //     points:  {
-                //         label: 'Balance',
-                //         sortable: true
-                //     } },
                 fields: [
                     {
                         key:'id',
