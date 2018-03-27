@@ -22,9 +22,9 @@
         </b-nav>
             <b-table striped hover responsive :items="tournaments" :fields="fields"
                  :per-page="perPage" :current-page="currentPage"
-                     @row-clicked="showDetails($event)"></b-table>
+                     @row-clicked="showDetails($event)" ref="tbl"></b-table>
 
-        <b-modal id="announceModal" title="Announce a tournament" @ok="handleOK" @cancel="handleCancel" >
+        <b-modal id="announceModal" title="Announce a tournament" @ok="handleOK"  @show="handleHide">
             <AnnounceForm />
         </b-modal>
 
@@ -32,5 +32,12 @@
                  ok-only no-fade>
             <TournamentDetails />
         </b-modal>
+
+
+        <b-alert variant="danger" :show="formError" dismissible  @dismissed="formError=false">
+            <pre class="my-4">Something went wrong</pre>
+            <pre class="my-4">Message: {{formAlert.errorMsg}}</pre>
+            <p class="my-4">Status: {{formAlert.statusCode}}</p>
+        </b-alert>
     </div>
 </div>

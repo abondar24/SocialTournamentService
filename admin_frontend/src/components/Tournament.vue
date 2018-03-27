@@ -23,6 +23,11 @@
                 perPage: 7,
                 currentPage: 1,
                 totalRows:0,
+                formAlert:{
+                    statusCode:0,
+                    errorMsg: '',
+                },
+                formError: false
                 }
 
             },
@@ -43,19 +48,24 @@
                         this.errorAlert = true;
                     });
             },
-            handleOK(){
-                EventBus.$emit('submit');
+            handleOK(evt){
+                EventBus.$emit('submit',evt);
             },
-            handleCancel(){
-                EventBus.$emit('reset');
+            handleHide(){
+                EventBus.$emit('show');
             },
             updTournaments(newTournament){
                 this.tournaments.push(newTournament);
+                this.$refs.tbl.refresh();
             },
             showDetails(details){
                 this.$refs.td.title +=details.name;
                 this.$refs.td.show();
                 EventBus.$emit('init',details.id);
+            },
+            showFormAlert(formAlert){
+                this.formError = true;
+                this.formAlert = formAlert;
             }
         },
         created: function () {
@@ -64,6 +74,8 @@
         },
         mounted: function () {
             EventBus.$on('announce',this.updTournaments);
+            EventBus.$on('formError',this.showFormAlert);
+
         }
 
 

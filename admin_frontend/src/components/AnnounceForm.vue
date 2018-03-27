@@ -15,44 +15,50 @@
                     deposit: null
 
                 },
-                statusCode: null,
+                formAlert:{
+                statusCode:0,
                 errorMsg: '',
-                errorAlert: false,
+                },
                 tournamentId: null
             }
         },
         methods: {
             announceTournament() {
-               this.$http.post(this.$hostname+'/announce_tournament?name='
-                   +this.tournament.name+'&deposit='+this.tournament.deposit)
-            .then(response => {
-                       this.tournamentId = response.data.msg;
-                       this.statusCode = response.data.code;
-                       this.tournament.id = this.tournamentId;
-                       if (this.statusCode!==201){
-                           this.errorMsg = response.data;
-                           this.errorAlert = true;
-                       } else {
-                           EventBus.$emit('announce', this.tournament);
-                       }
-                this.resetForm();
-                   }, error => {
-                       this.errorMsg = error.statusText || error.data;
-                       this.statusCode = error.statusCode || error.status;
-                       this.errorAlert = true;
-                this.resetForm();
-                   });
-
+               if (this.tournament.name!=='' && this.tournament.deposit!==null){
+                   this.$http.post(this.$hostname+'/announce_tournament?name='
+                       +this.tournament.name+'&deposit='+this.tournament.deposit)
+                       .then(response => {
+                           this.tournamentId = response.data.msg;
+                           this.formAlert.statusCode = response.data.code;
+                           this.tournament.id = this.tournamentId;
+                           if (this.formAlert.statusCode!==201){
+                               this.formAlert.errorMsg = response.data;
+                               this.formAlert.errorAlert = true;
+                               EventBus.$emit('formError',this.formAlert);
+                           } else {
+                               EventBus.$emit('announce', this.tournament);
+                           }
+                       }, error => {
+                           this.formAlert.errorMsg = error.statusText || error.data;
+                           this.formAlert.statusCode = error.statusCode || error.status;
+                           this.formAlert.errorAlert = true;
+                           EventBus.$emit('formError',this.formAlert);
+                       });
+               }  else {
+                   this.formAlert.errorAlert = true;
+                   this.formAlert.errorMsg += 'Form filled incorrectly';
+                   EventBus.$emit('formError',this.formAlert);
+               }
 
             },
             resetForm() {
-                this.tournament.name = '';
-                this.tournament.deposit = null;
+                Object.assign(this.$data, this.$options.data())
             }
         },
         created: function () {
             EventBus.$on('submit',this.announceTournament);
-            EventBus.$on('reset',this.resetForm);
+            EventBus.$on('show',this.resetForm);
+
         }
 
     }
