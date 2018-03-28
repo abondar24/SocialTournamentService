@@ -14,12 +14,12 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/abondar24/SocialTournamentService/blogic"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
+	"github.com/abondar24/SocialTournamentService/data"
 )
 
 type Server struct {
@@ -53,7 +53,7 @@ func (s *Server) RunRestServer() {
 	s.router.HandleFunc("/v2/result_tournament/{tId}", s.ResultTournament).Methods("GET")
 	s.router.HandleFunc("/v2/balance/{pId}", s.Balance).Methods("GET")
 	s.router.HandleFunc("/v2/reset", s.Reset).Methods("GET")
-	s.router.HandleFunc("/v2/update_prizes", s.UpdatePrize).Methods("PUT")
+	s.router.HandleFunc("/v2/update_prizes", s.UpdatePrizes).Methods("PUT")
 	s.router.HandleFunc("/v2/get_players", s.GetPlayers).Methods("GET")
 	s.router.HandleFunc("/v2/get_tournaments", s.GetTournaments).Methods("GET")
 	s.router.HandleFunc("/v2/get_players_tournament/{tId}", s.GetPlayersInTournament).Methods("GET")
@@ -87,11 +87,13 @@ func (s *Server) AddPlayer(w http.ResponseWriter, r *http.Request) {
 	pts, err := strconv.Atoi(points)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	pId, err := s.logic.AddPlayer(name, pts)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -115,25 +117,30 @@ func (s *Server) Take(w http.ResponseWriter, r *http.Request) {
 	pid, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	pts, err := strconv.Atoi(points)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	err = s.logic.Take(pid, pts)
 	if err != nil {
 		if err.Error() == ErrPlayerNotFound {
 			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrInsufficientBalance {
 			w.WriteHeader(http.StatusPaymentRequired)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrInternalError {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 		}
 	}
 
@@ -155,21 +162,25 @@ func (s *Server) Fund(w http.ResponseWriter, r *http.Request) {
 	pid, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	pts, err := strconv.Atoi(points)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	err = s.logic.Fund(pid, pts)
 	if err != nil {
 		if err.Error() == ErrInternalError {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrPlayerNotFound {
 			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
 		}
 	}
 
@@ -191,11 +202,13 @@ func (s *Server) AnnounceTournament(w http.ResponseWriter, r *http.Request) {
 	dp, err := strconv.Atoi(deposit)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	tId, err := s.logic.AnnounceTournament(name, dp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -225,75 +238,73 @@ func (s *Server) JoinTournament(w http.ResponseWriter, r *http.Request) {
 	pid, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	backers, err := s.convertToInt64(backerIds)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	err = s.logic.JoinTournament(tid, pid, backers)
 	if err != nil {
 		if err.Error() == ErrInternalError {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrTournamentNotFound {
-			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrPlayerNotFound {
-			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrInsufficientBalance {
 			w.WriteHeader(http.StatusPaymentRequired)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrPlayerAlreadyInTournament {
 			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte(err.Error()))
 		}
 	}
 
 	w.WriteHeader(http.StatusOK)
 }
 
-// UpdatePrize swagger:route PUT /update_prizes UpdatePrize
+// UpdatePrizes swagger:route PUT /update_prizes
 //
-// Updates player's prize.
+// Updates player's prize by a getting a list of TournamentPlayer objects
 //
 // Responses:
 //    200: rsPlayerInTournament
 //    500: errInternalError
-func (s *Server) UpdatePrize(w http.ResponseWriter, r *http.Request) {
-	tournamentId := r.URL.Query()["tournament_id"][0]
-	playerId := r.URL.Query()["player_id"][0]
-	prize := r.URL.Query()["prize"][0]
+func (s *Server) UpdatePrizes(w http.ResponseWriter, r *http.Request) {
 
-	tid, err := strconv.ParseInt(tournamentId, 10, 64)
-	if err != nil {
-		log.Fatal(err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
 
-	player, err := strconv.ParseInt(playerId, 10, 64)
+	decoder := json.NewDecoder(r.Body)
+	var tps []data.TournamentPlayer
+
+	err := decoder.Decode(&tps)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+	defer r.Body.Close()
 
-	pr, err := strconv.Atoi(prize)
+	err = s.logic.UpdatePrizes(&tps)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	err = s.logic.UpdatePrize(tid, player, pr)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	w.WriteHeader(http.StatusOK)
+
 }
 
 // ResultTournament swagger:route GET /result_tournament/{tId} ResultTournament
@@ -311,16 +322,19 @@ func (s *Server) ResultTournament(w http.ResponseWriter, r *http.Request) {
 	tid, err := strconv.ParseInt(tournamentId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	tr, err := s.logic.ResultTournament(tid)
 	if err != nil {
 		if err.Error() == ErrInternalError {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrTournamentNotFound {
 			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
 		}
 	}
 
@@ -342,16 +356,19 @@ func (s *Server) Balance(w http.ResponseWriter, r *http.Request) {
 	pid, err := strconv.ParseInt(playerId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	pb, err := s.logic.Balance(pid)
 	if err != nil {
 		if err.Error() == ErrInternalError {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrPlayerNotFound {
 			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
 		}
 	}
 
@@ -368,6 +385,7 @@ func (s *Server) Reset(w http.ResponseWriter, r *http.Request) {
 	err := s.logic.Reset()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -384,6 +402,7 @@ func (s *Server) GetPlayers(w http.ResponseWriter, r *http.Request) {
 	players, err := s.logic.GetAllPlayers()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -402,6 +421,7 @@ func (s *Server) GetTournaments(w http.ResponseWriter, r *http.Request) {
 	tournaments, err := s.logic.GetAllTournaments()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -424,15 +444,18 @@ func (s *Server) GetPlayersInTournament(w http.ResponseWriter, r *http.Request) 
 	tid, err := strconv.ParseInt(tournamentId, 10, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 	}
 
 	players, err := s.logic.GetPlayersTournament(tid)
 	if err != nil {
 		if err.Error() == ErrInternalError {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 		}
 
 		if err.Error() == ErrTournamentNotFound {
+			w.Write([]byte(err.Error()))
 			w.WriteHeader(http.StatusNotFound)
 		}
 	}

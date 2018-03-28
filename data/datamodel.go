@@ -29,10 +29,21 @@ type Tournament struct {
 	Deposit int `json:"deposit"`
 }
 
+// Tournament and its players on the service
+//
+// swagger:model TournamentPlayer
 type TournamentPlayer struct {
+
+	// TP id.
 	Id           int64 `json:"id"`
+
+	// Tournaments's id.
 	TournamentId int64 `json:"tournament_id"`
+
+	// The id of the player.
 	PlayerId     int64 `json:"player_id"`
+
+	// Prize of the player.
 	Prize        int   `json:"prize"`
 }
 

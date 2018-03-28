@@ -307,7 +307,11 @@ func (l *Logic) ResultTournament(tournamentId int64) (*data.TournamentResults, e
 	return tr, err
 }
 
-func (l *Logic) UpdatePrize(tournamentId int64, playerId int64, prize int) error {
+func (l *Logic) UpdatePrizes(tournamentPlayers *[]data.TournamentPlayer) error {
+
+	playerIds := getPlayersIds(tournamentPlayers)
+	tournamentIds := getTournamentsIds(tournamentPlayers)
+
 	tx, err := l.ds.BeginTx()
 	if err != nil {
 		log.Println(err.Error())
@@ -315,25 +319,24 @@ func (l *Logic) UpdatePrize(tournamentId int64, playerId int64, prize int) error
 
 	defer tx.Rollback()
 
-	_, err = l.checkTournament(tournamentId, tx)
+	err = l.checkTournaments(tournamentIds, tx)
 	if err != nil {
 		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
-	_, err = l.checkPlayer(playerId, tx)
+	err = l.checkPlayers(playerIds, tx)
 	if err != nil {
 		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
-	tp := &data.TournamentPlayer{
-		TournamentId: tournamentId,
-		PlayerId:     playerId,
-		Prize:        prize,
+	tournamentPlayers,err = l.ds.GetTournamentPlayersIds(tournamentIds,playerIds,tournamentPlayers,tx)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New(ErrInternalError)
 	}
-
-	err = l.ds.SetPlayerPrize(tp, tx)
+	err = l.ds.SetPlayersPrizes(tournamentPlayers, tx)
 	if err != nil {
 		return errors.New(ErrInternalError)
 	}
@@ -501,19 +504,35 @@ func (l *Logic) checkTournament(tournamentId int64, tx *sql.Tx) (*data.Tournamen
 }
 
 func (l *Logic) checkPlayers(players *[]int64, tx *sql.Tx) error {
-	b, err := l.ds.GetPlayersByIds(players, tx)
+	ps, err := l.ds.GetPlayersByIds(players, tx)
 	if err != nil {
 		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
-	if len(*b) != len(*players) {
+	if len(*ps) != len(*players) {
 		log.Println(err.Error())
 		return errors.New(ErrPlayerNotFound)
 	}
 
 	return err
 }
+
+func (l *Logic) checkTournaments(tournaments *[]int64, tx *sql.Tx) error {
+	ts, err := l.ds.GetTournamentsByIds(tournaments, tx)
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New(ErrInternalError)
+	}
+
+	if len(*ts) != len(*tournaments) {
+		log.Println(err.Error())
+		return errors.New(ErrPlayerNotFound)
+	}
+
+	return err
+}
+
 
 func (l *Logic) checkBackersInTournament(tournamentId int64, backers *[]int64, tx *sql.Tx) (*[]int64, error) {
 	players, err := l.ds.GetPlayerIdsByTournament(tournamentId, tx)
@@ -544,15 +563,6 @@ func (l *Logic) checkBackersInTournament(tournamentId int64, backers *[]int64, t
 	return &cleanBackers, err
 }
 
-func arrayContains(s *[]int64, e int64) bool {
-	for _, a := range *s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
 func (l *Logic) getBackers(backerIds *[]int64, playerId int64, sum int) *[]data.Backer {
 	backers := make([]data.Backer, 0)
 
@@ -566,4 +576,46 @@ func (l *Logic) getBackers(backerIds *[]int64, playerId int64, sum int) *[]data.
 	}
 
 	return &backers
+}
+
+func getPlayersIds(tps *[]data.TournamentPlayer) *[]int64 {
+    playersIds := make([]int64,0)
+
+    for _,tp := range *tps {
+    	playersIds = append(playersIds,tp.PlayerId)
+	}
+
+	return &playersIds
+}
+
+func getTournamentsIds(tps *[]data.TournamentPlayer) *[]int64 {
+	tournamentsIds := make([]int64,0)
+
+	for _,tp := range *tps {
+		if !tpsContains(tps,tp){
+			tournamentsIds = append(tournamentsIds,tp.TournamentId)
+		}
+
+	}
+
+	return &tournamentsIds
+}
+
+func arrayContains(s *[]int64, e int64) bool {
+	for _, a := range *s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+
+func tpsContains(tps *[]data.TournamentPlayer, tpCheck data.TournamentPlayer) bool {
+	for _, tp := range *tps {
+		if tp == tpCheck {
+			return true
+		}
+	}
+	return false
 }

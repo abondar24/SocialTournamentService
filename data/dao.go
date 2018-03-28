@@ -299,6 +299,31 @@ func (ds *MySql) GetTournamentById(tournamentId int64, tx *sql.Tx) (*Tournament,
 
 }
 
+func (ds *MySql) GetTournamentsByIds(tournamentIds *[]int64, tx *sql.Tx) (*[]Tournament, error) {
+
+	query := fmt.Sprintf("SELECT * FROM tournament where id in (%v)", &tournamentIds)
+
+	stmt, err := tx.Prepare(query)
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	tournaments := make([]Tournament, 0)
+
+	for rows.Next() {
+		t := Tournament{}
+		rows.Scan(&t.Id, &t.Name, &t.Deposit)
+		tournaments = append(tournaments, t)
+	}
+
+	return &tournaments, err
+}
+
 func (ds *MySql) AddPlayerToTournament(tp *TournamentPlayer, tx *sql.Tx) (int64, error) {
 
 	query := fmt.Sprintf("INSERT INTO tournament_player(player_id,tournament_id,prize) VALUES(%v,%v,%v)",
@@ -401,9 +426,45 @@ func (ds *MySql) GetTournamentPlayerIdFromTournament(player int64, tournament in
 	return id, err
 }
 
-func (ds *MySql) SetPlayerPrize(tp *TournamentPlayer, tx *sql.Tx) error {
-	query := fmt.Sprintf("UPDATE tournament_player SET prize=%v WHERE tournament_id=%v AND player_id=%v ",
-		tp.Prize, tp.TournamentId, tp.PlayerId)
+
+func (ds *MySql) GetTournamentPlayersIds(tournaments *[]int64,players *[]int64,
+	tps *[]TournamentPlayer, tx *sql.Tx) (*[]TournamentPlayer, error) {
+	query := fmt.Sprintf("SELECT id FROM  tournament_player  WHERE tournament_id in (%v)"+
+		"AND player_id in (%v)",&tournaments,&players)
+	stmt, err := tx.Prepare(query)
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+
+	id := int64(0)
+	for rows.Next() {
+	  rows.Scan(&id)
+	  for _, tp:= range *tps {
+	  	 tp.Id = id
+	  }
+	}
+	return tps, err
+}
+
+func (ds *MySql) SetPlayersPrizes(tps *[]TournamentPlayer, tx *sql.Tx) error {
+	query := fmt.Sprintf("INSERT INTO tournament_player (id,tournament_id,player_id,prize) VALUES")
+
+	vals := ""
+	for i, tp := range *tps {
+		vals += fmt.Sprintf("(%v,%v,%v,%v)",tp.Id,tp.TournamentId,tp.PlayerId,tp.Prize)
+		if i != len(*tps)-1 {
+			vals += ","
+		}
+	}
+
+	query += vals
+	query += "ON DUPLICATE KEY UPDATE prize=VALUES(prize)"
 
 	stmt, err := tx.Prepare(query)
 

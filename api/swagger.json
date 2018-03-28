@@ -16,7 +16,8 @@
       "name": "MIT",
       "url": "http://opensource.org/licenses/MIT"
     },
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "title": "SocialTournamentService API"
   },
   "host": "localhost:8080",
   "basePath": "/v2",
@@ -345,48 +346,6 @@
           },
           "404": {
             "$ref": "#/responses/errPlayerTournamentNotFound"
-          },
-          "500": {
-            "$ref": "#/responses/errInternalError"
-          }
-        }
-      }
-    },
-    "/update_prizes": {
-      "put": {
-        "summary": "Updates player's prize.",
-        "operationId": "UpdatePrize",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "x-go-name": "TournamentId",
-            "description": "The id of the tournament.",
-            "name": "tournament_id",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "integer",
-            "format": "int64",
-            "x-go-name": "PlayerId",
-            "description": "The id of the player.",
-            "name": "player_id",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "int64",
-            "x-go-name": "Prize",
-            "description": "Value of the prize.",
-            "name": "prize",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/rsPlayerInTournament"
           },
           "500": {
             "$ref": "#/responses/errInternalError"

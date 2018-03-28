@@ -55,21 +55,6 @@ type JoinTournamentParams struct {
 	BackerId int64 `json:"backer_id"`
 }
 
-// swagger:parameters UpdatePrize
-type UpdatePrizeParams struct {
-	// The id of the tournament.
-	//
-	// required: true
-	TournamentId int64 `json:"tournament_id"`
-
-	// The id of the player.
-	PlayerId int64 `json:"player_id"`
-
-	// Value of the prize.
-	//
-	// required: true
-	Prize int `json:"prize"`
-}
 
 // swagger:parameters Balance
 type PlayerIdParam struct {
