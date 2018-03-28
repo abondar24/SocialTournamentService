@@ -16,7 +16,7 @@
       "name": "MIT",
       "url": "http://opensource.org/licenses/MIT"
     },
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "SocialTournamentService API"
   },
   "host": "localhost:8080",
@@ -346,6 +346,20 @@
           },
           "404": {
             "$ref": "#/responses/errPlayerTournamentNotFound"
+          },
+          "500": {
+            "$ref": "#/responses/errInternalError"
+          }
+        }
+      }
+    },
+    "/update_prizes": {
+      "put": {
+        "description": "Updates player's prize by a getting a list of TournamentPlayer objects",
+        "operationId": "UpdatePrizes",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/rsPlayerInTournament"
           },
           "500": {
             "$ref": "#/responses/errInternalError"
