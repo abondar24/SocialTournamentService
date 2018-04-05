@@ -311,7 +311,6 @@ func (l *Logic) UpdatePrizes(tournamentPlayers *[]data.TournamentPlayer) error {
 
 	playerIds := getPlayersIds(tournamentPlayers)
 	tournamentIds := getTournamentsIds(tournamentPlayers)
-
 	tx, err := l.ds.BeginTx()
 	if err != nil {
 		log.Println(err.Error())
@@ -592,7 +591,8 @@ func getTournamentsIds(tps *[]data.TournamentPlayer) *[]int64 {
 	tournamentsIds := make([]int64,0)
 
 	for _,tp := range *tps {
-		if !tpsContains(tps,tp){
+
+		if !tpsContains(&tournamentsIds,tp.TournamentId){
 			tournamentsIds = append(tournamentsIds,tp.TournamentId)
 		}
 
@@ -611,7 +611,7 @@ func arrayContains(s *[]int64, e int64) bool {
 }
 
 
-func tpsContains(tps *[]data.TournamentPlayer, tpCheck data.TournamentPlayer) bool {
+func tpsContains(tps *[]int64, tpCheck int64) bool {
 	for _, tp := range *tps {
 		if tp == tpCheck {
 			return true

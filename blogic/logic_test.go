@@ -448,6 +448,7 @@ func TestLogic_ResultTournament(t *testing.T) {
 
 	assert.Equal(t, tId, tr.TournamentId)
 	assert.Equal(t, 2, len(tr.Winners))
+	assert.Equal(t,pId,tr.Winners[0].PlayerId)
 }
 
 func TestLogic_UpdatePrizes(t *testing.T) {

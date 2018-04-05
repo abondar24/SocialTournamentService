@@ -301,8 +301,18 @@ func (ds *MySql) GetTournamentById(tournamentId int64, tx *sql.Tx) (*Tournament,
 
 func (ds *MySql) GetTournamentsByIds(tournamentIds *[]int64, tx *sql.Tx) (*[]Tournament, error) {
 
-	query := fmt.Sprintf("SELECT * FROM tournament where id in (%v)", &tournamentIds)
+	ids := ""
+	for i, id := range *tournamentIds {
 
+		s := strconv.FormatInt(id, 10)
+		ids += s
+		if i != len(*tournamentIds)-1 {
+			ids += ","
+		}
+
+	}
+
+	query := fmt.Sprintf("SELECT * FROM tournament WHERE id IN (%v)", ids)
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {
@@ -315,9 +325,11 @@ func (ds *MySql) GetTournamentsByIds(tournamentIds *[]int64, tx *sql.Tx) (*[]Tou
 	rows, err := stmt.Query()
 	tournaments := make([]Tournament, 0)
 
+
 	for rows.Next() {
 		t := Tournament{}
 		rows.Scan(&t.Id, &t.Name, &t.Deposit)
+		fmt.Println(&t.Id)
 		tournaments = append(tournaments, t)
 	}
 
@@ -501,7 +513,7 @@ func (ds *MySql) GetTournamentWinners(tournamentId int64, tx *sql.Tx) (*[]Tourna
 
 	for rows.Next() {
 		tp := TournamentPlayer{}
-		rows.Scan(&tp.Id, &tp.TournamentId, &tp.PlayerId, &tp.Prize)
+		rows.Scan(&tp.Id, &tp.PlayerId, &tp.TournamentId, &tp.Prize)
 		players = append(players, tp)
 	}
 
