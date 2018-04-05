@@ -4,7 +4,7 @@
 
 <script>
     import AnnounceForm from './AnnounceForm.vue'
-    import TournamentDetails from './TournamentDetails'
+    import TournamentDetails from './TournamentDetails.vue'
     import EventBus from './event-bus';
     export default {
         name: "Tournament",
@@ -59,6 +59,7 @@
                 this.$refs.tbl.refresh();
             },
             showDetails(details){
+                this.$refs.td.title = "Tournament details for ";
                 this.$refs.td.title +=details.name;
                 this.$refs.td.show();
                 EventBus.$emit('init',details.id);

@@ -22,13 +22,13 @@
         </b-nav>
             <b-table striped hover responsive :items="tournaments" :fields="fields"
                  :per-page="perPage" :current-page="currentPage"
-                     @row-clicked="showDetails($event)" ref="tbl"></b-table>
+                     @row-clicked="showDetails($event)" ref="tbl"/>
 
         <b-modal id="announceModal" title="Announce a tournament" @ok="handleOK"  @show="handleHide">
             <AnnounceForm />
         </b-modal>
 
-        <b-modal id="tournamentDetails" ref="td" title="Tournament details for "
+        <b-modal id="tournamentDetails" size="lg" ref="td" title="Tournament details for "
                  ok-only no-fade>
             <TournamentDetails />
         </b-modal>

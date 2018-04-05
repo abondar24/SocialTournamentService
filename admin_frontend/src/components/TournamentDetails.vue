@@ -4,8 +4,12 @@
 
 <script>
     import EventBus from './event-bus';
+    import UpdatePrizeForm from './UpdatePrizeForm.vue';
     export default {
         name: "TournamentDetails",
+        components:{
+            UpdatePrizeForm
+        },
         data(){
             return {
                 tournamentId: null,
@@ -26,12 +30,19 @@
                 perPage: 5,
                 currentPage: 1,
                 totalRows:0,
-                players: []
+                players: [],
+                elements: [],
+                elementsCount:0,
+                winners:[],
+                prizes:[],
+                prizesShow:false
             }
 
         },
         methods:{
             getPlayers(id){
+                this.elements = [];
+                this.prizes = [];
                 this.tournamentId = id;
                 this.$http.get(this.$hostname+'/get_players_tournament/'+this.tournamentId)
                     .then(response => {
@@ -47,12 +58,52 @@
                         this.statusCode = error.statusCode || error.status;
                         this.errorAlert = true;
                     });
-            }
+            },
+            addWinner(){
+               this.elements.push({type: 'UpdatePrizeForm',id:this.elementsCount+=1});
+            },
+            savePrize(winner){
+                this.winners.push(winner);
+            },
+            updatePrizes(){
+                this.elements = [];
+                this.$http.put(this.$hostname+'/update_prizes', this.winners)
+                    .then(response => {
+                        if (this.statusCode!==200){
+                            this.errorMsg = response.data;
+                            this.errorAlert = true;
+                        }
+                        this.winners = [];
+                        this.$http.get(this.$hostname+'/result_tournament/'+this.tournamentId)
+                            .then(response => {
+                                if (this.statusCode!==200){
+                                    this.errorMsg = response.data;
+                                    this.errorAlert = true;
+                                }
+                                console.log(response.data.msg);
+                                this.prizes = response.data.msg.winners;
+                                this.prizesShow = true;
 
+                            }, error => {
+                                this.errorMsg = error.statusText || error.data;
+                                this.statusCode = error.statusCode || error.status;
+                                this.errorAlert = true;
+                            });
+
+                    }, error => {
+                        this.errorMsg = error.statusText || error.data;
+                        this.statusCode = error.statusCode || error.status;
+                        this.errorAlert = true;
+                    });
+            }
 
         },
         created: function () {
-            EventBus.$on('init',this.getPlayers)
+            EventBus.$on('init',this.getPlayers);
+
+        },
+        mounted: function () {
+            EventBus.$on('prize',this.savePrize);
         }
 
 

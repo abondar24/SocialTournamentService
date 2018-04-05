@@ -11,13 +11,29 @@
             <b-nav-item>
             <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
             </b-nav-item>
+            <b-nav-item>
+                <b-button size="md" variant="success" @click="addWinner">
+                    Add winner
+                </b-button>
+            </b-nav-item>
+            <b-nav-item>
+                <b-button size="md" variant="warning" @click="updatePrizes">
+                    Update prizes
+                </b-button>
+            </b-nav-item>
         </b-nav>
 
         <b-table striped hover responsive :items="players" :fields="fields"
-                 :per-page="perPage" :current-page="currentPage">
+                 :per-page="perPage" :current-page="currentPage"/>
 
+            <div class="container" v-for="element in elements" :is="element.type">
 
-        </b-table>
+            </div>
+
+        <div v-if="prizesShow">
+            <b-table striped hover responsive :items="prizes"/>
+
+        </div>
     </div>
 
 </div>

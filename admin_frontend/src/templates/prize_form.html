@@ -1,0 +1,24 @@
+<div id="prizes">
+    <b-form @submit="onSubmit" @reset="$parent.elements.splice(element,1)" inline>
+
+        <label class="sr-only" for="idInput">ID</label>
+        <b-input id="idInput"
+                 class="mb-2 mr-sm-2 mb-sm-0"
+                 type="text"
+                 v-model="winner.playerId"
+                 required
+                 placeholder="Enter ID"/>
+        <b-input-group left="@" class="mb-2 mr-sm-2 mb-sm-0">
+            <label class="sr-only" for="prizeInput">Prize</label>
+            <b-input id="prizeInput"
+                     placeholder="Prize"
+                     type="text"
+                     v-model="winner.prize"
+                     required
+                     placeholder="Enter Prize" />
+        </b-input-group>
+        <b-button id="save"type="submit" variant="primary">Save</b-button>
+         <div class="divider"/>
+        <b-button type="reset" variant="danger">Cancel</b-button>
+    </b-form>
+</div>

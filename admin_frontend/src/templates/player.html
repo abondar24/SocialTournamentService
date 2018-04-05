@@ -21,11 +21,7 @@
                 </b-nav-item>
         </b-nav>
         <b-table striped hover responsive :items="players" :fields="fields"
-                                          :per-page="perPage" :current-page="currentPage">
-
-
-        </b-table>
-
+                                          :per-page="perPage" :current-page="currentPage"/>
 
         <div v-if="balance">
             <Balance/>
