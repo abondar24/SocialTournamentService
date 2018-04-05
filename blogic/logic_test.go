@@ -491,7 +491,13 @@ func TestLogic_UpdatePrizes(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	b,err := l.Balance(pId)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	assert.Equal(t, nil, err)
+	assert.Equal(t,200,b.Balance)
 }
 
 func TestLogic_GetAllTournaments(t *testing.T) {

@@ -64,6 +64,10 @@
             },
             savePrize(winner){
                 this.winners.push(winner);
+                for (let i = 0; i < this.winners.length; i++) {
+                   this.winners[i].tournamentId = this.tournamentId;
+                }
+                console.log(this.winners);
             },
             updatePrizes(){
                 this.elements = [];
@@ -80,7 +84,6 @@
                                     this.errorMsg = response.data;
                                     this.errorAlert = true;
                                 }
-                                console.log(response.data.msg);
                                 this.prizes = response.data.msg.winners;
                                 this.prizesShow = true;
 
@@ -95,6 +98,9 @@
                         this.statusCode = error.statusCode || error.status;
                         this.errorAlert = true;
                     });
+            },
+            clearWinners(){
+                this.winners = [];
             }
 
         },
@@ -104,6 +110,7 @@
         },
         mounted: function () {
             EventBus.$on('prize',this.savePrize);
+            EventBus.$on('hide',this.clearWinners);
         }
 
 

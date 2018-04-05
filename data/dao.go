@@ -91,7 +91,7 @@ func (ds *MySql) GetPlayerById(playerId int64, tx *sql.Tx) (*Player, error) {
 
 }
 
-func (ds *MySql) GetPlayersByIds(playerIds *[]int64, tx *sql.Tx) (*[]Player, error) {
+func (ds *MySql) GetPlayersByIds(playerIds *[]int64, tx *sql.Tx) (*[]*Player, error) {
 	arr := ""
 	for i, id := range *playerIds {
 
@@ -113,12 +113,12 @@ func (ds *MySql) GetPlayersByIds(playerIds *[]int64, tx *sql.Tx) (*[]Player, err
 	defer stmt.Close()
 
 	rows, err := stmt.Query()
-	backers := make([]Player, 0)
+	backers := make([]*Player, 0)
 
 	for rows.Next() {
 		b := Player{}
 		rows.Scan(&b.Id, &b.Name, &b.Points)
-		backers = append(backers, b)
+		backers = append(backers, &b)
 	}
 
 	return &backers, err
@@ -148,6 +148,38 @@ func (ds *MySql) CreateNewPlayer(p *Player, tx *sql.Tx) (int64, error) {
 
 	return int64(id), err
 }
+
+func (ds *MySql) UpdatePlayers(players *[]Player, tx *sql.Tx) error {
+	query := fmt.Sprintf("INSERT INTO player(id,name,points) VALUES")
+
+	vals := ""
+	for i, pl := range *players {
+		vals += fmt.Sprintf("(%v,'%v',%v)",pl.Id,pl.Name,pl.Points)
+		if i != len(*players)-1 {
+			vals += ","
+		}
+	}
+
+	query += vals
+	query += "ON DUPLICATE KEY UPDATE points=VALUES(points)"
+
+	stmt, err := tx.Prepare(query)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec()
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+
+	return err
+}
+
 
 func (ds *MySql) UpdatePlayerBalance(playerId int64, sum int, charge bool, tx *sql.Tx) error {
 	query := ""
@@ -477,7 +509,6 @@ func (ds *MySql) SetPlayersPrizes(tps *[]TournamentPlayer, tx *sql.Tx) error {
 
 	query += vals
 	query += "ON DUPLICATE KEY UPDATE prize=VALUES(prize)"
-
 	stmt, err := tx.Prepare(query)
 
 	if err != nil {

@@ -340,6 +340,30 @@ func (l *Logic) UpdatePrizes(tournamentPlayers *[]data.TournamentPlayer) error {
 		return errors.New(ErrInternalError)
 	}
 
+	players,err := l.ds.GetPlayersByIds(playerIds,tx)
+	if err != nil {
+		return errors.New(ErrInternalError)
+	}
+
+	for _,p := range *players {
+		for _,tp := range *tournamentPlayers{
+			if p.Id==tp.PlayerId {
+				p.Points += tp.Prize
+
+			}
+		}
+	}
+
+	pls := make([]data.Player,len(*players))
+	for _,pl := range *players{
+		pls = append(pls,*pl)
+	}
+
+	err = l.ds.UpdatePlayers(&pls,tx)
+	if err != nil {
+		return errors.New(ErrInternalError)
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err.Error())

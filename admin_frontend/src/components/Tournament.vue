@@ -50,6 +50,7 @@
             },
             handleOK(evt){
                 EventBus.$emit('submit',evt);
+                EventBus.$emit('hide');
             },
             handleHide(){
                 EventBus.$emit('show');
