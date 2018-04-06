@@ -8,7 +8,7 @@
         name: "Balance",
         data(){
             return {
-                playerId: null,
+                player_id: null,
                 balanceErr:{
                     statusCode: 0,
                     errorMsg: '',
@@ -22,7 +22,7 @@
         methods: {
             onSubmit(evt){
                 evt.preventDefault();
-                this.$http.get(this.$hostname+'/balance/'+this.playerId)
+                this.$http.get(this.$hostname+'/balance/'+this.player_id)
                     .then(response => {
                         this.balanceErr.statusCode = response.data.code;
                         if (this.balanceErr.statusCode!==200){

@@ -314,6 +314,7 @@ func (l *Logic) UpdatePrizes(tournamentPlayers *[]data.TournamentPlayer) error {
 	tx, err := l.ds.BeginTx()
 	if err != nil {
 		log.Println(err.Error())
+		return errors.New(ErrInternalError)
 	}
 
 	defer tx.Rollback()
@@ -337,11 +338,13 @@ func (l *Logic) UpdatePrizes(tournamentPlayers *[]data.TournamentPlayer) error {
 	}
 	err = l.ds.SetPlayersPrizes(tournamentPlayers, tx)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
 	players,err := l.ds.GetPlayersByIds(playerIds,tx)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
@@ -361,12 +364,14 @@ func (l *Logic) UpdatePrizes(tournamentPlayers *[]data.TournamentPlayer) error {
 
 	err = l.ds.UpdatePlayers(&pls,tx)
 	if err != nil {
+		log.Println(err.Error())
 		return errors.New(ErrInternalError)
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err.Error())
+		return errors.New(ErrInternalError)
 	}
 	return err
 

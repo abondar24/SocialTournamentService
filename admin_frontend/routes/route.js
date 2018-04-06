@@ -1,7 +1,7 @@
 let express = require('express');
 let router = express.Router();
 let request = require('request');
-
+let bodyParser = require('body-parser');
 let baseURI = "http://localhost:8080/v2";
 
 
@@ -102,18 +102,16 @@ router.get("/result_tournament/:id",function (req, res, next) {
 });
 
 router.put("/update_prizes",function (req, res, next) {
-    let options = {
-        qs: {
-            tournament_id: parseInt(req.query.tournament_id),
-            player_id: parseInt(req.query.player_id),
-            prize: parseInt(req.query.prize)
-        }
-    };
 
-
-    request.put(baseURI+"/update_prizes",options,function (err, resp, body) {
+    let body = JSON.stringify(req.body);
+    console.log(body);
+    request.put({
+        url:baseURI+"/update_prizes",
+        body: body
+    },function (err, resp, body) {
 
         if (!err){
+            console.log(resp.statusCode)
             res.send({code:resp.statusCode});
         } else {
             console.log(err)

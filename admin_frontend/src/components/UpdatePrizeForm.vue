@@ -10,7 +10,7 @@
         data(){
             return {
                winner: {
-                   playerId: null,
+                   player_id: null,
                    prize:null
                }
             }

@@ -12,7 +12,7 @@
         },
         data(){
             return {
-                tournamentId: null,
+                tournament_id: null,
                 statusCode: null,
                 errorMsg: '',
                 errorAlert: false,
@@ -43,8 +43,8 @@
             getPlayers(id){
                 this.elements = [];
                 this.prizes = [];
-                this.tournamentId = id;
-                this.$http.get(this.$hostname+'/get_players_tournament/'+this.tournamentId)
+                this.tournament_id = id;
+                this.$http.get(this.$hostname+'/get_players_tournament/'+this.tournament_id)
                     .then(response => {
                         this.players = response.data.msg;
                         this.totalRows = this.players.length;
@@ -65,21 +65,24 @@
             savePrize(winner){
                 this.winners.push(winner);
                 for (let i = 0; i < this.winners.length; i++) {
-                   this.winners[i].tournamentId = this.tournamentId;
+                    this.winners[i].prize = parseInt(this.winners[i].prize);
+                    this.winners[i].player_id =parseInt(this.winners[i].player_id);
+                   this.winners[i].tournament_id = this.tournament_id;
                 }
-                console.log(this.winners);
             },
             updatePrizes(){
                 this.elements = [];
-                this.$http.put(this.$hostname+'/update_prizes', this.winners)
+                this.$http.put(this.$hostname+'/update_prizes', {body:this.winners})
                     .then(response => {
+                        this.statusCode = response.data.code;
                         if (this.statusCode!==200){
                             this.errorMsg = response.data;
                             this.errorAlert = true;
                         }
                         this.winners = [];
-                        this.$http.get(this.$hostname+'/result_tournament/'+this.tournamentId)
+                        this.$http.get(this.$hostname+'/result_tournament/'+this.tournament_id)
                             .then(response => {
+                                this.statusCode = response.data.code;
                                 if (this.statusCode!==200){
                                     this.errorMsg = response.data;
                                     this.errorAlert = true;

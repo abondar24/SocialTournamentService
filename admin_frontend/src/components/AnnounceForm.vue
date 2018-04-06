@@ -19,7 +19,7 @@
                 statusCode:0,
                 errorMsg: '',
                 },
-                tournamentId: null
+                tournament_id: null
             }
         },
         methods: {
@@ -30,7 +30,7 @@
                        .then(response => {
                            this.tournamentId = response.data.msg;
                            this.formAlert.statusCode = response.data.code;
-                           this.tournament.id = this.tournamentId;
+                           this.tournament.id = this.tournament_id;
                            if (this.formAlert.statusCode!==201){
                                this.formAlert.errorMsg = response.data;
                                this.formAlert.errorAlert = true;

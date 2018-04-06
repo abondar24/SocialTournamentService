@@ -1,8 +1,8 @@
 let express = require('express');
 let serveStatic = require('serve-static');
 let route = require('./routes/route');
-let bodyParser = require('body-parser');
 let logger = require('morgan');
+let bodyParser = require('body-parser');
 
 app = express();
 
@@ -12,8 +12,8 @@ app.listen(port);
 
 app.set('route',__dirname+'/routes');
 
-app.use('/',route);
 app.use(bodyParser.json());
+app.use('/',route);
 app.use(logger('dev'));
 
 console.log('server started '+ port);

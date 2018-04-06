@@ -8,9 +8,10 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "body-parser": "latest",
+    "body-parser": "^1.18.2",
     "bootstrap": "^4.0.0",
     "bootstrap-vue": "^2.0.0-rc.2",
+    "connect": "^3.6.6",
     "express": "^4.16.2",
     "morgan": "^1.9.0",
     "request": "^2.85.0",
