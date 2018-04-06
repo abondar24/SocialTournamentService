@@ -9,13 +9,14 @@ npm install
 
 npm run build
 
-node server.js
+npm start
 
 ```
 
 ### With Docker
 ````yaml
 
+docker-compose up -d
 ````
 
 

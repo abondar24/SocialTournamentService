@@ -1,9 +1,23 @@
 version: '3'
 services:
+  front:
+     build:
+          context: ./admin_frontend
+          dockerfile: Dockerfile
+     container_name: sts_front
+     restart: always
+     ports:
+        - 8217:8217
+     links:
+       - web
+     volumes:
+       - $GOPATH
+     networks:
+           - mynet
   web:
     build:
-           context: .
-           dockerfile: Dockerfile
+         context: .
+         dockerfile: Dockerfile
     container_name: sts_web
     restart: always
     ports:

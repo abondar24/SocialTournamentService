@@ -1,6 +1,8 @@
 FROM library/golang
 FROM quay.io/goswagger/swagger
 
+MAINTAINER Alex Bondar <abondar1992@gmail.com>
+
 WORKDIR /app
 
 ENV SRC_DIR=$GOPATH/src/github.com/abondar24/SocialTournamentService

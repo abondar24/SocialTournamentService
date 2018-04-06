@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 let request = require('request');
 let bodyParser = require('body-parser');
-let baseURI = "http://localhost:8080/v2";
+let baseURI = "http://sts_web:8080/v2";
 
 
 router.get("/status",function (req, res, next) {
