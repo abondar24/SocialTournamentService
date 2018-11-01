@@ -1,4 +1,4 @@
-# Small backend service on Go
+# Small service on Go
 
 # Intro
 It's a backend for a FAKE gaming service.
