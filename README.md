@@ -48,6 +48,8 @@ Or you can access it locally by http://localhost:8024/docs
    docker-compose build
    docker-compose up -d
   ``` 
+In swagger-alt dir located a Dockerfile for swagger-ui generation based on go-swagger docker image. Just for your interest.
+
 
 Swagger API documentation is available at localhost:8024
 # Frontend
