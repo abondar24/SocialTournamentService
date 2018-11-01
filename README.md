@@ -32,18 +32,10 @@ Or you can access it locally by http://localhost:8024/docs
 
 # Install and run
 
-1) To build a project and use it on your own machine run make install and run ./main (in such case change database hostname from 'db')
+1) To uild a project and use it on your own machine run make install and run ./main (in such case change database hostname from 'db')
 2) To run tests you should have a MySqlServer up and running on localhost
-3) Go to api directory and generate swagger.json as described below
-4) To run in docker via docker compose:
-  ```yaml
-   docker-compose build
-   docker-compose up -d
-  ```
-5) Create database from db.sql file
-6) Enable Swagger-UI  docker exec -d sts_web swagger serve -p 8024 --no-open swagger.json
- 
-# Generate Swagger API reference
+3) To Generate Swagger API reference
+
 ```yaml
   Install go-swagger
   In api package dir
@@ -51,5 +43,12 @@ Or you can access it locally by http://localhost:8024/docs
   swagger generate spec -o ./swagger.json
   swagger validate swagger.json
 ```
+4) To run in docker via docker compose:
+  ```yaml
+   docker-compose build
+   docker-compose up -d
+  ``` 
+
+Swagger API documentation is available at localhost:8024
 # Frontend
 Frontend documentation [here](admin_frontend/README.md) 

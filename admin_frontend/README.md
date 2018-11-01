@@ -18,7 +18,7 @@ npm start
 
 docker-compose up -d
 ````
-
+Admin frontend available at: localhost:8217
 
 # Hints
 

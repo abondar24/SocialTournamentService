@@ -22,7 +22,6 @@ services:
     restart: always
     ports:
       - 8080:8080
-      - 8024:8024
     # Link to containers in another services
     links:
       - db
@@ -31,12 +30,24 @@ services:
     networks:
           - mynet
 
+  doc:
+     build:
+          context: ./api
+          dockerfile: Dockerfile
+     container_name: sts_doc
+     restart: always
+     ports:
+       - 8024:8080
+     volumes:
+       - $GOPATH
+     networks:
+          - mynet          
   db:
-    image: library/mysql:latest
+    build:
+         context: ./db
+         dockerfile: Dockerfile     
     restart: always
     container_name: sts_db
-    environment:
-      MYSQL_ROOT_PASSWORD: alex21
     volumes:
           - ../../../../_local_mysql_data:/var/lib/mysql
     networks:
