@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: doc
+  name: doc
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: doc
+    spec:
+      containers:
+      - image: abondar/socialtournamentservice_doc 
+        name: sts-doc
+        ports:
+        - containerPort: 8080
+        resources: {}
+        volumeMounts:
+        - mountPath: /home/alex/Go
+          name: doc-claim0
+      restartPolicy: Always
+      volumes:
+      - name: doc-claim0
+        persistentVolumeClaim:
+          claimName: doc-claim0
+status: {}

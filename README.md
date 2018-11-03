@@ -50,7 +50,29 @@ Or you can access it locally by http://localhost:8024/docs
   ``` 
 In swagger-alt dir located a Dockerfile for swagger-ui generation based on go-swagger docker image. Just for your interest.
 
+5) To run using kubernetes
+```yaml
+   Multipod config(generated via kompose)
+  
+   kubectl create -f <resource.yaml name>
 
-Swagger API documentation is available at localhost:8024
+  Singlepod config(manual yaml):
+  kubectl create -f single-deployment.yaml
+```
+## Algorithm of creating kubernetes pods
+
+1) Build images via docker-compose
+2) Tag them and push to Dockerhub
+3)  Generate pods via Kompose or write your own yaml.
+If you use generated yaml files:  
+3a) replace _  in names with camel case or -
+3b) replace generated image names with tagged ones from step 2
+4) Run commands from above
+ 
 # Frontend
 Frontend documentation [here](admin_frontend/README.md) 
+
+# Access 
+- Swagger API documentation is available at localhost:8024
+- Rest API available at localhost:8080/v2 (see swagger)
+ - Admin frontend available at localhost:8217 (see Frontend documentation)

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    name: single-pod
+  creationTimestamp: null
+  name: sts-single
+
+spec:
+
+  restartPolicy: Always 
+  containers:
+      - image: abondar/socialtournamentservice_web 
+        name: sts-web
+        ports:
+        - containerPort: 8080
+        resources: {}
+        
+        
+        
+      - image: abondar/socialtournamentservice_front 
+        name: sts-front
+        ports:
+        - containerPort: 8217
+        resources: {}
+        volumeMounts:
+         
+     
+      - image: abondar/socialtournamentservice_doc 
+        name: sts-doc
+        ports:
+        - containerPort: 8080
+        resources: {}
+        volumeMounts:
+        
+      - image: abondar/socialtournamentservice_db
+        name: sts-db
+        resources: {}
+      
+status: {}

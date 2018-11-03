@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: front
+  name: front
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: front
+    spec:
+      containers:
+      - image: abondar/socialtournamentservice_front 
+        name: sts-front
+        ports:
+        - containerPort: 8217
+        resources: {}
+        volumeMounts:
+        - mountPath: /home/alex/Go
+          name: front-claim0
+      restartPolicy: Always
+      volumes:
+      - name: front-claim0
+        persistentVolumeClaim:
+          claimName: front-claim0
+status: {}

@@ -48,8 +48,6 @@ services:
          dockerfile: Dockerfile     
     restart: always
     container_name: sts_db
-    volumes:
-          - ../../../../_local_mysql_data:/var/lib/mysql
     networks:
          - mynet
 
