@@ -26,10 +26,10 @@ spec:
         volumeMounts:
          
      
-      - image: abondar/socialtournamentservice_doc 
+      - image: abondar/swagger-alt 
         name: sts-doc
         ports:
-        - containerPort: 8080
+        - containerPort: 8024
         resources: {}
         volumeMounts:
         

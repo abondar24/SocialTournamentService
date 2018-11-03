@@ -73,6 +73,6 @@ If you use generated yaml files:
 Frontend documentation [here](admin_frontend/README.md) 
 
 # Access 
-- Swagger API documentation is available at localhost:8024
+- Swagger API documentation is available at localhost:8024(localhost:8024 if swagger-alt is used)
 - Rest API available at localhost:8080/v2 (see swagger)
- - Admin frontend available at localhost:8217 (see Frontend documentation)
+- Admin frontend available at localhost:8217 (see Frontend documentation)
